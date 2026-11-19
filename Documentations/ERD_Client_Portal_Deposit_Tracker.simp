@@ -1,0 +1,271 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sim-project version="15.21" multi-file="no" uid="simp420b94ac62a143d798bd2447f650a275" creation-date="11/19/2026 20:49:18">
+  <meta>
+    <name>ERD_Client_Portal_Deposit_Tracker</name>
+    <authors> User</authors>
+    <description />
+  </meta>
+  <counters models="1">
+    <entity-names>
+      <counter>
+        <item-type type-id="erd-entity" type="Entity" />
+        <value>5</value>
+      </counter>
+    </entity-names>
+    <entity-ids>
+      <counter>
+        <item-type type-id="erd-entity" type="Entity" />
+        <value>6</value>
+      </counter>
+      <counter>
+        <item-type type-id="erd-relationship" type="Relationship" />
+        <value>5</value>
+      </counter>
+    </entity-ids>
+    <diagrams>
+      <counter>
+        <type>SoftwareIdeasModeler.Core.Diagrams.Other.EntityRelationshipDiagram</type>
+        <value>1</value>
+      </counter>
+    </diagrams>
+    <fields>
+      <counter>
+        <type>SoftwareIdeasModeler.Core.DiagramItems.Erd.ErdEntityAttribute</type>
+        <value>48</value>
+      </counter>
+    </fields>
+  </counters>
+  <alias-groups />
+  <management uid="md-d60c6c877cb04e1f804e1dbd266895bf" name="" task-id-sequence="0">
+    <persons>
+      <person id="">
+        <first-name />
+        <last-name>User</last-name>
+        <role />
+        <e-mail />
+        <phone-number />
+        <description />
+        <color>#00000000</color>
+      </person>
+    </persons>
+    <teams />
+    <sprints />
+    <projects />
+    <modules />
+    <tasks />
+    <to-dos />
+  </management>
+  <glossary id="glsr-c6a697aba95242f28c223d5bec807aa7" name="" order-index="-1" />
+  <types default="UML">
+    <type-sets>
+      <type-set file="UmlTypes.xml" />
+    </type-sets>
+    <custom-types>
+      <parameters />
+      <types>
+        <type id="DECIMAL" name="DECIMAL" />
+        <type id="BOOLEAN" name="BOOLEAN" />
+        <type id="TIMESTAMPTZ" name="TIMESTAMPTZ" />
+        <type id="UUID" name="UUID" />
+        <type id="VARCHAR" name="VARCHAR" />
+        <type id="TEXT" name="TEXT" />
+        <type id="INT" name="INT" />
+      </types>
+    </custom-types>
+  </types>
+  <items />
+  <models>
+    <model id="p3e0bb9c11bd144368109e94f840088c1_879184082" name="Model1" namespace="" order-index="1">
+      <meta>
+        <authors>
+          <author> </author>
+        </authors>
+        <description />
+        <creation-date>11/19/2026 20:51:39</creation-date>
+        <change-date>01/01/0001 00:00:00</change-date>
+        <revision-count>0</revision-count>
+        <version />
+      </meta>
+      <abstract-items />
+      <sub-models />
+      <diagram type="entity-relationship" id="pd43ce1bf383847c6a99922b989c360ba_548521021" name="ERD_Client_Portal_Deposit_Tracker" order-index="1" uid="" name-style="" auto-routed-paths="false" default-line-style="default">
+        <style>
+          <background-color index="1" color="#FFFFFFFF" />
+          <background-color index="2" color="#FFFFFFFF" />
+          <background-type type="solid" />
+        </style>
+        <meta>
+          <authors>
+            <author> </author>
+          </authors>
+          <description />
+          <creation-date>11/19/2026 20:51:39</creation-date>
+          <change-date>11/19/2026 22:09:46</change-date>
+          <revision-count>0</revision-count>
+          <version />
+        </meta>
+        <abstract-items>
+          <item id="c04d4eb3cd8b41b0829afcab05286392" cid="ENT004" type="erd-entity" name="milestones" creator="" creation-date="11/19/2026 20:51:59">
+            <entity description="" />
+            <attributes>
+              <attribute uid="a07b23b8429704db4a7d5d5c639f62eec908" cid="EA032" name="id" type="UUID" type-id="UUID" primary-key="true" nullable="false" creation-date="11/19/2026 21:53:43" />
+              <attribute uid="ab42cec6808094b5ca0108e2e75cb5a5f170" cid="EA033" name="project_id" type="UUID" type-id="UUID" foreign-key="true" nullable="false" creation-date="11/19/2026 21:53:52" />
+              <attribute uid="a0e2466aaec5e4197b1f6cf000c2c5664855" cid="EA034" name="title" type="VARCHAR" type-id="VARCHAR" nullable="false" creation-date="11/19/2026 21:54:01" />
+              <attribute uid="a598bc1d17d744753a1853166a501906a765" cid="EA035" name="description" type="TEXT" type-id="TEXT" nullable="false" creation-date="11/19/2026 21:54:14" />
+              <attribute uid="a644328e40c9e4fe296b19ccb6b8843a3283" cid="EA036" name="sort_order" type="INT" type-id="INT" nullable="false" creation-date="11/19/2026 21:54:28" />
+              <attribute uid="a09e481a0368648ffa138092b5f222220597" cid="EA037" name="status" type="VARCHAR" type-id="VARCHAR" nullable="false" creation-date="11/19/2026 21:54:41" />
+              <attribute uid="af3008a7bdd5b4ab5af4fac1d42ca45a4144" cid="EA038" name="completed_at" type="TIMESTAMPTZ" type-id="TIMESTAMPTZ" nullable="true" creation-date="11/19/2026 21:54:53" />
+            </attributes>
+          </item>
+          <item id="170c4d468c344558a90cb1b3c210a591" cid="REL004" type="erd-relationship" creator="" creation-date="11/19/2026 22:09:46" from="7b7fb7a96acb44c6983841e8fcf128fa" to="034b8b9bc9a14ac2a215f449d7b2cdb8">
+            <erd-relation type="Identifying" multiplicity-from="1" multiplicity-to="0..1">
+              <attribute-pairs>
+                <attribute-pair from-attribute="" to-attribute="addfe2c632ac947cc80ce4317d75b0eb711" />
+              </attribute-pairs>
+            </erd-relation>
+          </item>
+          <item id="7a6acad9b9ef406b9a5d26145a1764cd" cid="ENT005" type="erd-entity" name="transactions" creator="" creation-date="11/19/2026 20:52:02">
+            <entity description="" />
+            <attributes>
+              <attribute uid="a6207b2fb289744a2bf7a15dd9a0be4c0333" cid="EA039" name="id" type="UUID" type-id="UUID" primary-key="true" nullable="false" creation-date="11/19/2026 21:57:04" />
+              <attribute uid="a2e1b4b2739294b7f8bc09f72afff9b0876" cid="EA040" name="project_id" type="UUID" type-id="UUID" foreign-key="true" nullable="false" creation-date="11/19/2026 21:57:10" />
+              <attribute uid="a3349a890807f41c58688aeac425f87d0902" cid="EA041" name="payment_method" type="VARCHAR" type-id="VARCHAR" nullable="false" creation-date="11/19/2026 21:57:24" />
+              <attribute uid="ad163e0236c8b4c85840a12f9439178d7400" cid="EA042" name="external_reference" type="VARCHAR" type-id="VARCHAR" nullable="true" creation-date="11/19/2026 21:57:39" />
+              <attribute uid="ab4052d705af541aa8837f20b988da5aa228" cid="EA043" name="pop_file_path" type="VARCHAR" type-id="VARCHAR" nullable="true" creation-date="11/19/2026 21:57:54" />
+              <attribute uid="a932ff36980004647bd2102b7a41f9d44141" cid="EA044" name="amount" type="DECIMAL" type-id="DECIMAL" type-size="10,2" nullable="false" creation-date="11/19/2026 21:58:02" />
+              <attribute uid="a8e68e87930914d47a346f172424ffe5c310" cid="EA045" name="payment_type" type="VARCHAR" type-id="VARCHAR" nullable="false" creation-date="11/19/2026 21:58:18" />
+              <attribute uid="aeaa0e6d39b1b4223b5ea0b04f8508621902" cid="EA046" name="status" type="VARCHAR" type-id="VARCHAR" nullable="false" creation-date="11/19/2026 21:58:21" />
+              <attribute uid="aaedac5bcfe5e43c1a2f2c3181b852782354" cid="EA047" name="paid_at" type="TIMESTAMPTZ" type-id="TIMESTAMPTZ" nullable="true" creation-date="11/19/2026 21:58:32" />
+            </attributes>
+          </item>
+          <item id="2f0ef8d92d6e415abd054ecbb132d70c" cid="REL002" type="erd-relationship" creator="" creation-date="11/19/2026 22:07:21" from="7b7fb7a96acb44c6983841e8fcf128fa" to="c04d4eb3cd8b41b0829afcab05286392">
+            <erd-relation type="Identifying" multiplicity-from="1" multiplicity-to="0..*">
+              <attribute-pairs>
+                <attribute-pair from-attribute="af746a7104a4e4b73b4c6e6997f1a781f979" to-attribute="" />
+              </attribute-pairs>
+            </erd-relation>
+          </item>
+          <item id="4a497f35f11d45afa004b76613df9133" cid="REL001" type="erd-relationship" creator="" creation-date="11/19/2026 22:04:56" from="06118a49eef94080b6e7c5cbe60fe9d0" to="7b7fb7a96acb44c6983841e8fcf128fa">
+            <erd-relation type="Identifying" multiplicity-from="1" multiplicity-to="0..*">
+              <attribute-pairs>
+                <attribute-pair from-attribute="" to-attribute="" />
+              </attribute-pairs>
+            </erd-relation>
+          </item>
+          <item id="034b8b9bc9a14ac2a215f449d7b2cdb8" cid="ENT003" type="erd-entity" name="quote_signatures" creator="" creation-date="11/19/2026 20:51:56">
+            <entity description="" />
+            <attributes>
+              <attribute uid="aa949fb78229542b99fa907a87bc13e83141" cid="EA025" name="id" type="UUID" type-id="UUID" primary-key="true" nullable="false" creation-date="11/19/2026 21:49:42" />
+              <attribute uid="accbcc54b215f44c19d55921ff95482af360" cid="EA026" name="project_id" type="UUID" type-id="UUID" foreign-key="true" nullable="false" creation-date="11/19/2026 21:50:17" />
+              <attribute uid="addfe2c632ac947cc80ce4317d75b0eb711" cid="EA027" name="signer_full_name" type="VARCHAR" type-id="VARCHAR" nullable="false" creation-date="11/19/2026 21:50:51" />
+              <attribute uid="a76fdddb98a744ab3b9b7eaf400738e6d591" cid="EA028" name="agreed_to_terms" type="BOOLEAN" type-id="BOOLEAN" nullable="false" creation-date="11/19/2026 21:51:18" />
+              <attribute uid="ab30e375fc8844047883aacc6f816dc8a174" cid="EA029" name="ip_address" type="VARCHAR" type-id="VARCHAR" nullable="false" creation-date="11/19/2026 21:51:44" />
+              <attribute uid="ac0d9a516c3e64305b80d9afc4273b3f0726" cid="EA030" name="user_agent" type="TEXT" type-id="TEXT" nullable="false" creation-date="11/19/2026 21:52:10" />
+              <attribute uid="aa89372f6dddf45c887121e25383c533b60" cid="EA031" name="signed_at" type="TIMESTAMPTZ" type-id="TIMESTAMPTZ" nullable="false" creation-date="11/19/2026 21:52:30" />
+            </attributes>
+          </item>
+          <item id="7b7fb7a96acb44c6983841e8fcf128fa" cid="ENT002" type="erd-entity" name="projects" creator="" creation-date="11/19/2026 20:51:53">
+            <entity description="" />
+            <attributes>
+              <attribute uid="a9731569a04f34d909dd76cb6c08bb595367" cid="EA011" name="id" type="UUID" type-id="UUID" primary-key="true" nullable="false" creation-date="11/19/2026 21:37:41" />
+              <attribute uid="a2f586a170c90411da881635e84519bb0296" cid="EA012" name="freelancer_id" type="UUID" type-id="UUID" foreign-key="true" nullable="false" creation-date="11/19/2026 21:38:26" />
+              <attribute uid="aec8919f820f8480381b805d3a64f3e2024" cid="EA013" name="reference_code" type="VARCHAR" type-id="VARCHAR" nullable="false" creation-date="11/19/2026 21:38:46" />
+              <attribute uid="a004e12fc0f4a4599894f9fd2920fe2f586" cid="EA014" name="portal_slug" type="VARCHAR" type-id="VARCHAR" nullable="false" creation-date="11/19/2026 21:40:21" />
+              <attribute uid="a0c052702944d4d46bfeebbc185058c4e461" cid="EA015" name="is_link_active" type="BOOLEAN" type-id="BOOLEAN" nullable="false" default-value="TRUE" creation-date="11/19/2026 21:40:55" />
+              <attribute uid="a33f40ab4837b429b9250e24c6165b4b9904" cid="EA016" name="quote_expires_at" type="TIMESTAMPTZ" type-id="TIMESTAMPTZ" nullable="true" creation-date="11/19/2026 21:41:08" />
+              <attribute uid="a45d78327a05b4ff6a0eaadec11fc04ce923" cid="EA017" name="client_name" type="VARCHAR" type-id="VARCHAR" nullable="false" creation-date="11/19/2026 21:41:50" />
+              <attribute uid="af746a7104a4e4b73b4c6e6997f1a781f979" cid="EA018" name="client_email" type="VARCHAR" type-id="VARCHAR" nullable="false" creation-date="11/19/2026 21:42:02" />
+              <attribute uid="a8fd6fda0172f40278ade4fffcd91d802520" cid="EA019" name="title" type="VARCHAR" type-id="VARCHAR" nullable="false" creation-date="11/19/2026 21:42:21" />
+              <attribute uid="a0dc99f542a224f4baeb80c25ced98055171" cid="EA020" name="total_amount" type="DECIMAL" type-id="DECIMAL" type-size="10,2" nullable="false" creation-date="11/19/2026 21:42:35" />
+              <attribute uid="a3bb2ec97ed5549b4a94114a96b0cb862947" cid="EA021" name="deposit_percentage" type="INT" type-id="INT" nullable="false" creation-date="11/19/2026 21:42:51" />
+              <attribute uid="a11528580a1214950844f57832b500c09909" cid="EA022" name="amount_paid" type="DECIMAL" type-id="DECIMAL" type-size="10,2" nullable="false" default-value="0,00" creation-date="11/19/2026 21:43:32" />
+              <attribute uid="a3d47a3806c8648f4bbe140b916fde3d448" cid="EA023" name="status" type="VARCHAR" type-id="VARCHAR" nullable="false" creation-date="11/19/2026 21:43:48" />
+              <attribute uid="a501c7cb0a7d344fa8de7ae2e8cb153e8844" cid="EA024" name="created_at" type="TIMESTAMPTZ" type-id="TIMESTAMPTZ" nullable="false" creation-date="11/19/2026 21:43:58" />
+            </attributes>
+          </item>
+          <item id="71713bcdb7e04176b2aeeee841d4ae76" cid="REL003" type="erd-relationship" creator="" creation-date="11/19/2026 22:08:51" from="7b7fb7a96acb44c6983841e8fcf128fa" to="7a6acad9b9ef406b9a5d26145a1764cd">
+            <erd-relation type="Identifying" multiplicity-from="1" multiplicity-to="0..*">
+              <attribute-pairs>
+                <attribute-pair from-attribute="" to-attribute="" />
+              </attribute-pairs>
+            </erd-relation>
+          </item>
+          <item id="06118a49eef94080b6e7c5cbe60fe9d0" cid="ENT001" type="erd-entity" name="freelancers" creator="" creation-date="11/19/2026 20:51:47">
+            <entity description="" />
+            <attributes>
+              <attribute uid="aba38f90fbf354d43bf5d37e28ae3bcfa341" cid="EA001" name="id" type="UUID" type-id="UUID" primary-key="true" nullable="false" creation-date="11/19/2026 21:17:07" />
+              <attribute uid="a3376d043cc154902b51ae2fcefe733fa70" cid="EA002" name="full_name" type="VARCHAR" type-id="VARCHAR" nullable="false" creation-date="11/19/2026 21:19:18" />
+              <attribute uid="a3b6718a7c12d4402ad99bb019fd6180f718" cid="EA003" name="business_name" type="VARCHAR" type-id="VARCHAR" nullable="false" creation-date="11/19/2026 21:20:52" />
+              <attribute uid="aaa15c79ef18b4536b25c3c758b302465215" cid="EA004" name="logo_url" type="VARCHAR" type-id="VARCHAR" nullable="true" creation-date="11/19/2026 21:21:04" />
+              <attribute uid="a1a7f760013bb4c569ba712a1b824d0ab15" cid="EA005" name="phone_number" type="VARCHAR" type-id="VARCHAR" nullable="false" creation-date="11/19/2026 21:21:24" />
+              <attribute uid="aa06842254c5e407c89c16e4ab6b8146f809" cid="EA006" name="email" type="VARCHAR" type-id="VARCHAR" nullable="false" creation-date="11/19/2026 21:21:49" />
+              <attribute uid="ae0be7e9d587b4cc0944a42a7cdd725cf428" cid="EA007" name="bank_name" type="VARCHAR" type-id="VARCHAR" nullable="true" creation-date="11/19/2026 21:22:07" />
+              <attribute uid="a92274583d51f43a2b62fdf293f0c15bd780" cid="EA008" name="account_number" type="VARCHAR" type-id="VARCHAR" nullable="true" creation-date="11/19/2026 21:22:18" />
+              <attribute uid="a1b411b2295d5475da49a6b0c72f6c8e4990" cid="EA009" name="branch_code" type="VARCHAR" type-id="VARCHAR" nullable="true" creation-date="11/19/2026 21:22:31" />
+              <attribute uid="ae23a0a2c40814383ade48f9058c7cdc5306" cid="EA010" name="created_at" type="TIMESTAMPTZ" type-id="TIMESTAMPTZ" nullable="false" creation-date="11/19/2026 21:24:20" />
+            </attributes>
+          </item>
+        </abstract-items>
+        <layer id="33fefc29492748468cd514c3840b9b29" name="Default" visible="true" enabled="true" locked="false">
+          <item id="06118a49eef94080b6e7c5cbe60fe9d0" iid="23680d0e8128477ebecf421be8ae19e8" creation-date="11/19/2026 20:51:47" order-index="0" type="entity">
+            <layout ax="108" ay="-150" awidth="242" aheight="237" x="108" y="-150" width="140" height="160" />
+            <erd-entity show-nullability="true" />
+          </item>
+          <item id="7b7fb7a96acb44c6983841e8fcf128fa" iid="44a1a3aaa2674a138f4eaf95bdc77868" creation-date="11/19/2026 20:51:53" order-index="1" type="entity">
+            <layout ax="-166" ay="205" awidth="304" aheight="313" x="-166" y="205" width="140" height="160" />
+            <erd-entity show-nullability="true" />
+          </item>
+          <item id="034b8b9bc9a14ac2a215f449d7b2cdb8" iid="eaaad6f8bb9542b1b2c0765493767130" creation-date="11/19/2026 20:51:56" order-index="2" type="entity">
+            <layout ax="-650" ay="271.5" awidth="273" aheight="180" x="-650" y="271.5" width="140" height="160" />
+            <erd-entity show-nullability="true" />
+          </item>
+          <item id="c04d4eb3cd8b41b0829afcab05286392" iid="8252af934e264825b3ebd2b7bae159cd" creation-date="11/19/2026 20:51:59" order-index="3" type="entity">
+            <layout ax="444" ay="271.5" awidth="230" aheight="180" x="444" y="271.5" width="140" height="160" />
+            <erd-entity show-nullability="true" />
+          </item>
+          <item id="7a6acad9b9ef406b9a5d26145a1764cd" iid="b6aa11cc99a64ddf99744eada10be518" creation-date="11/19/2026 20:52:02" order-index="4" type="entity">
+            <layout ax="-142.5" ay="675" awidth="257" aheight="218" x="-142.5" y="675" width="140" height="160" />
+            <erd-entity show-nullability="true" />
+          </item>
+          <item id="4a497f35f11d45afa004b76613df9133" iid="ba38bf8a96844ea58a46415c2c1e4a66" creation-date="11/19/2026 22:04:56" order-index="5" type="relation">
+            <layout start-role-position="25,15" end-role-position="25,-15" line-style="oblique" start-auto-side="false" lock-start-point="true" lock-end-point="true" lock-to-fields="false" auto-path="" x1="108" y1="-24" x2="-17" y2="205" start-border-pos="0.8670886075949367" end-border-pos="0.12253289669752121" start-local-pos="126" end-local-pos="149" name-position="0,20">
+              <points>
+                <point x="108" y="-24" />
+                <point x="-16" y="-23" />
+                <point x="-17" y="205" />
+              </points>
+            </layout>
+            <relation from="06118a49eef94080b6e7c5cbe60fe9d0" from-iid="23680d0e8128477ebecf421be8ae19e8" to="7b7fb7a96acb44c6983841e8fcf128fa" to-iid="44a1a3aaa2674a138f4eaf95bdc77868" />
+          </item>
+          <item id="2f0ef8d92d6e415abd054ecbb132d70c" iid="1d43b5e52032412d8a8f935e909cfca3" creation-date="11/19/2026 22:07:21" order-index="6" type="relation">
+            <layout start-role-position="25,15" end-role-position="25,-15" line-style="oblique" start-auto-side="false" lock-start-point="true" lock-end-point="true" lock-to-fields="false" auto-path="" x1="138" y1="362" x2="444" y2="360" start-border-pos="0.3753993660211563" end-border-pos="0.8770833333333333" start-local-pos="157" end-local-pos="88.5" name-position="0,20">
+              <points>
+                <point x="138" y="362" />
+                <point x="444" y="360" />
+              </points>
+            </layout>
+            <relation from="7b7fb7a96acb44c6983841e8fcf128fa" from-iid="44a1a3aaa2674a138f4eaf95bdc77868" from-field="af746a7104a4e4b73b4c6e6997f1a781f979" to="c04d4eb3cd8b41b0829afcab05286392" to-iid="8252af934e264825b3ebd2b7bae159cd" />
+          </item>
+          <item id="71713bcdb7e04176b2aeeee841d4ae76" iid="96eb2e78cc194e4180b58ed5e0feecdd" creation-date="11/19/2026 22:08:51" order-index="7" type="relation">
+            <layout start-role-position="25,15" end-role-position="25,-15" line-style="oblique" lock-start-point="true" lock-end-point="true" lock-to-fields="false" auto-path="" x1="-14" y1="518" x2="-14" y2="675" start-border-pos="0.625" end-border-pos="0.1254863813229572" start-local-pos="152" end-local-pos="129" name-position="0,20">
+              <points>
+                <point x="-14" y="518" />
+                <point x="-14" y="675" />
+              </points>
+            </layout>
+            <relation from="7b7fb7a96acb44c6983841e8fcf128fa" from-iid="44a1a3aaa2674a138f4eaf95bdc77868" to="7a6acad9b9ef406b9a5d26145a1764cd" to-iid="b6aa11cc99a64ddf99744eada10be518" />
+          </item>
+          <item id="170c4d468c344558a90cb1b3c210a591" iid="84418031f17b4619b293ea22e2628579" creation-date="11/19/2026 22:09:46" order-index="8" type="relation">
+            <layout start-role-position="25,15" end-role-position="25,-15" line-style="oblique" lock-start-point="true" lock-end-point="true" lock-to-fields="true" auto-path="" x1="-166" y1="362" x2="-377" y2="362" start-border-pos="0.8746006389776357" end-border-pos="0.3756944388151169" start-local-pos="157" end-local-pos="90.5" name-position="0,20">
+              <points>
+                <point x="-166" y="362" />
+                <point x="-377" y="362" />
+              </points>
+            </layout>
+            <relation from="7b7fb7a96acb44c6983841e8fcf128fa" from-iid="44a1a3aaa2674a138f4eaf95bdc77868" to="034b8b9bc9a14ac2a215f449d7b2cdb8" to-iid="eaaad6f8bb9542b1b2c0765493767130" />
+          </item>
+        </layer>
+      </diagram>
+    </model>
+  </models>
+</sim-project>
