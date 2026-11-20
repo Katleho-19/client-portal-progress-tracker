@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>17e7d19b-079a-452b-b873-e64b785b38be</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="QuestPDF" Version="2026.9.2" />
+    <PackageReference Include="Supabase" Version="8.13.0" />
+    <PackageReference Include="Supabase.Extensions.DependencyInjection" Version="8.13.0" />
+  </ItemGroup>
+
+</Project>
