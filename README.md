@@ -39,7 +39,7 @@ All requirements, UI prototypes, and UML system models are stored in the [`Docum
 ## Project Roadmap
 - [x] **Phase 1 — Planning & Requirements:** Finalized initial SRS (`15 FRs`, `5 NFRs`), data model, and feasibility & risk analysis.
 - [x] **Phase 2 — System Architecture & Design:** Completed Lo-Fi & Hi-Fi Figma wireframes, 5-table ERD, UML Use Case diagram, and Paystack/EFT Sequence diagrams.
-- [ ] **Phase 3 — Database & Security Setup:** Deploy PostgreSQL schema, Row-Level Security (RLS) policies, and private POP storage bucket in Supabase.
+- [x] **Phase 3 — Database & Security Setup:** Deploy PostgreSQL schema, Row-Level Security (RLS) policies, and private POP storage bucket in Supabase.
 - [ ] **Phase 4 — Core Backend & Auth:** Initialize ASP.NET Core solution, Supabase Auth integration, and Freelancer Business Profile.
 - [ ] **Phase 5 — Client Portal & E-Signatures:** Build passwordless portal routing, ECTA audit logging, and QuestPDF quote stamping.
 - [ ] **Phase 6 — Payments & Deployment:** Integrate Paystack checkout/webhooks, Manual EFT POP verification, and deploy live.
