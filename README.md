@@ -32,7 +32,6 @@ Solo freelancers often rely on static PDF quotes, manual bank details sent over 
 ## Engineering & Design Documentation
 All requirements, UI prototypes, and UML system models are stored in the [`Documentations`](./Documentations) folder:
 * [Software Requirements Specification (SRS)](./Documentations/Client%20Portal%20%26%20Progress%20tracker%20(Phase%202%20SRS).pdf)
-* [Entity-Relationship Diagram (ERD)](./Documentations/ERD_Client_Portal_Deposit_Tracker.png)
 * [Interactive Figma Prototype (Hi-Fi Wireframes)](https://www.figma.com/proto/GfBlpYxeQ12siRCBQE4mss/Client-Portal---Deposit-Tracker---Lo-fi-Wireframes?node-id=15-20&p=f&t=w54GC1z7kqDgEsGJ-1&scaling=min-zoom&content-scaling=fixed&page-id=15%3A2&starting-point-node-id=15%3A20&show-proto-sidebar=1)
 
 ---
