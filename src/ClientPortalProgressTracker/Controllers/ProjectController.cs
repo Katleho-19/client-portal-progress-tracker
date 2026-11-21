@@ -312,16 +312,25 @@ public class ProjectsController : Controller
             milestone.CompletedAt = status == MilestoneStatus.Completed ? DateTime.UtcNow : null;
             await db.From<Milestone>().Update(milestone);
 
-            var allMilestones = await db.From<Milestone>().Where(m => m.ProjectId == project.Id).Get();
-            if (allMilestones.Models.Count > 0 && allMilestones.Models.All(m => m.Status == MilestoneStatus.Completed))
+            var allMilestones = await db.From<Milestone>()
+                .Where(m => m.ProjectId == project.Id)
+                .Order("sort_order", Ordering.Ascending)
+                .Get();
+
+            var ordered = allMilestones.Models;
+            // Unlock final balance once all work milestones before the final handover milestone are complete
+            var payableMilestones = ordered.Count > 1 ? ordered.Take(ordered.Count - 1) : ordered;
+
+            if (ordered.Count > 0 && payableMilestones.All(m => m.Status == MilestoneStatus.Completed))
             {
-                if (project.AmountPaid < project.TotalAmount)
+                if (project.AmountPaid < project.TotalAmount && project.Status == ProjectStatus.Active)
                 {
                     project.Status = ProjectStatus.CompletedUnpaid;
                     await db.From<Project>().Update(project);
                 }
             }
         }
+
 
         TempData["SuccessMessage"] = "Milestone progress updated.";
         return RedirectToAction(nameof(Details), new { id = projectId });

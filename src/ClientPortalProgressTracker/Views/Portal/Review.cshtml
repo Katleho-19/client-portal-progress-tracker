@@ -1,5 +1,4 @@
-﻿ 
-@model ClientPortalProgressTracker.Models.ViewModels.PortalViewModel
+﻿@model ClientPortalProgressTracker.Models.ViewModels.PortalViewModel
 @using ClientPortalProgressTracker.Models.Entities
 @{
     Layout = "_PortalLayout";
@@ -24,6 +23,14 @@
             <span class="status-pill status-active">Valid until @p.QuoteExpiresAt.Value.ToString("dd MMM yyyy")</span>
         }
     </div>
+
+    @if (!string.IsNullOrWhiteSpace(p.MessageToClient))
+    {
+        <section class="portal-card">
+            <h2>Note from @Model.Freelancer.FullName</h2>
+            <p class="mb-0" style="white-space: pre-line;">@p.MessageToClient</p>
+        </section>
+    }
 
     <section class="portal-card">
         <h2>Scope &amp; milestones</h2>
@@ -77,6 +84,13 @@
             <p class="portal-fine">Your name, the date and time, and your device information are recorded as proof that you accepted this quote. Once signed, the scope can no longer be changed.</p>
         </form>
     </section>
+
+    <div class="text-center py-2">
+        <a asp-controller="Portal" asp-action="QuotePdf" asp-route-slug="@p.PortalSlug" class="text-decoration-none fw-medium d-inline-flex align-items-center gap-2">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Download PDF quote
+        </a>
+    </div>
 </div>
 
 @section Scripts {

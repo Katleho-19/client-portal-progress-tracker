@@ -16,7 +16,7 @@
 
     @if (isPaid)
     {
-        <div class="portal-alert portal-alert-success"><strong>Paid in full</strong> &middot; This page is now a read-only archive.</div>
+        <div class="portal-alert portal-alert-success"><strong>Paid in full</strong> &middot; Read-only archive.</div>
     }
 
     <div>
@@ -28,17 +28,23 @@
             }
             else if (p.Status == ProjectStatus.CompletedUnpaid)
             {
-
                 <span class="status-pill status-awaiting">Balance due</span>
             }
             else
             {
-
                 <span class="status-pill status-active">Active</span>
             }
         </div>
         <p class="portal-meta">Ref @p.ReferenceCode</p>
     </div>
+
+    @if (!string.IsNullOrWhiteSpace(p.MessageToClient))
+    {
+        <section class="portal-card">
+            <h2>Note from @Model.Freelancer.FullName</h2>
+            <p class="mb-0" style="white-space: pre-line;">@p.MessageToClient</p>
+        </section>
+    }
 
     <section class="portal-card">
         <div class="d-flex justify-content-between mb-2">
@@ -79,46 +85,70 @@
         }
     </section>
 
-    <section class="portal-card">
-        <h2>Payments</h2>
-        <div class="portal-kv"><span>Total</span><strong>R @p.TotalAmount.ToString("N2")</strong></div>
-        <div class="portal-kv"><span>Paid</span><strong class="text-success">R @p.AmountPaid.ToString("N2")</strong></div>
-        <div class="portal-kv"><span>Balance due</span><strong>R @Model.BalanceDue.ToString("N2")</strong></div>
-
-        @if (canPayBalance)
-        {
-            <a asp-controller="Portal" asp-action="Pay" asp-route-slug="@p.PortalSlug" class="btn btn-figma-primary mt-2">Pay final balance</a>
-        }
-        else if (!isPaid)
-        {
-            <p class="portal-fine">The final balance becomes payable once all milestones are completed.</p>
-        }
-    </section>
-
-    @if (Model.Transactions.Any(t => t.Status == TransactionStatus.Success))
+    @if (!isPaid)
     {
         <section class="portal-card">
-            <h2>Receipts</h2>
-            @foreach (var tx in Model.Transactions.Where(t => t.Status == TransactionStatus.Success))
+            <h2>Payments</h2>
+            <div class="portal-kv"><span>Total</span><strong>R @p.TotalAmount.ToString("N2")</strong></div>
+            <div class="portal-kv"><span>Paid</span><strong class="text-success">R @p.AmountPaid.ToString("N2")</strong></div>
+            <div class="portal-kv"><span>Balance due</span><strong>R @Model.BalanceDue.ToString("N2")</strong></div>
+
+            @if (canPayBalance)
             {
-                var typeLabel = tx.PaymentType == PaymentType.Deposit ? "Deposit"
-                : (tx.PaymentType == PaymentType.FinalBalance ? "Final balance" : "Full payment");
-                <div class="portal-kv">
-                    <span>
-                        @typeLabel &middot; @((tx.PaidAt ?? tx.CreatedAt).ToString("dd MMM yyyy"))
-                    </span>
-                    <strong>R @tx.Amount.ToString("N2")</strong>
-                </div>
+                <a asp-controller="Portal" asp-action="Pay" asp-route-slug="@p.PortalSlug" class="btn btn-figma-primary w-100 mt-3">Pay final balance</a>
+            }
+            else
+            {
+                var targetMilestone = Model.Milestones.Count > 1
+                ? Model.Milestones[Model.Milestones.Count - 2].Title
+                : (Model.Milestones.LastOrDefault()?.Title ?? "final");
+                <button type="button" class="btn btn-secondary w-100 mt-3" disabled>Pay final balance</button>
+                <p class="portal-fine mt-2 mb-0">Available once the @targetMilestone milestone is complete.</p>
             }
         </section>
     }
 
-    @if (Model.Signature != null)
+
+    @if (Model.Signature != null || Model.Transactions.Any(t => t.Status == TransactionStatus.Success))
     {
         <section class="portal-card">
-            <h2>Signed quote</h2>
-            <div class="portal-kv"><span>Signed by</span><strong>@Model.Signature.SignerFullName</strong></div>
-            <div class="portal-kv"><span>Signed on</span><strong>@Model.Signature.SignedAt.ToString("dd MMM yyyy, HH:mm") UTC</strong></div>
+            <h2>@(isPaid ? "Receipts & documents" : "Documents")</h2>
+
+            @if (Model.Signature != null)
+            {
+                <a asp-controller="Portal" asp-action="QuotePdf" asp-route-slug="@p.PortalSlug"
+                   class="d-flex justify-content-between align-items-center p-3 mb-2 border rounded text-decoration-none text-dark">
+                    <div>
+                        <div class="fw-semibold">Signed quote (PDF)</div>
+                        <div class="portal-meta">Signed @Model.Signature.SignedAt.ToString("dd MMM yyyy")</div>
+                    </div>
+                    <span class="btn btn-sm btn-light border text-primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    </span>
+                </a>
+            }
+
+            @foreach (var tx in Model.Transactions.Where(t => t.Status == TransactionStatus.Success))
+            {
+                var typeLabel = tx.PaymentType == PaymentType.Deposit ? "Deposit receipt"
+                : (tx.PaymentType == PaymentType.FinalBalance ? "Final balance receipt" : "Full payment receipt");
+                <div class="d-flex justify-content-between align-items-center p-3 mb-2 border rounded">
+                    <div>
+                        <div class="fw-semibold">@typeLabel</div>
+                        <div class="portal-meta">
+                            R @tx.Amount.ToString("N2") &middot; @((tx.PaidAt ?? tx.CreatedAt).ToString("dd MMM yyyy"))
+                            @if (!string.IsNullOrWhiteSpace(tx.PopFilePath))
+                            {
+                                <span> &middot; <a asp-controller="Portal" asp-action="DownloadPop" asp-route-slug="@p.PortalSlug" asp-route-transactionId="@tx.Id" target="_blank">View POP</a></span>
+                            }
+                        </div>
+                    </div>
+                    <a asp-controller="Portal" asp-action="ReceiptPdf" asp-route-slug="@p.PortalSlug" asp-route-transactionId="@tx.Id"
+                       class="btn btn-sm btn-light border text-primary" title="Download Receipt PDF">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    </a>
+                </div>
+            }
         </section>
     }
 </div>

@@ -9,28 +9,22 @@ using static Supabase.Postgrest.Constants;
 
 namespace ClientPortalProgressTracker.Controllers;
 
-/// <summary>
-/// Client portal: no login. Access is by the private link /p/{slug} only.
-/// The server uses the service-role client, so every action first loads the
-/// project by slug and checks that the link is active.
-/// </summary>
 [Route("p/{slug}")]
 public class PortalController : Controller
 {
     private const long MaxProofBytes = 10 * 1024 * 1024; // 10 MB
 
     private readonly SupabaseAdmin _admin;
+    private readonly PortalPdfService _pdf;
     private readonly ILogger<PortalController> _logger;
 
-    public PortalController(SupabaseAdmin admin, ILogger<PortalController> logger)
+    public PortalController(SupabaseAdmin admin, PortalPdfService pdf, ILogger<PortalController> logger)
     {
         _admin = admin;
+        _pdf = pdf;
         _logger = logger;
     }
 
-    // ------------------------------------------------------------------
-    // One URL, the right screen for the project's status
-    // ------------------------------------------------------------------
     [HttpGet("")]
     public async Task<IActionResult> Index(string slug)
     {
@@ -45,14 +39,11 @@ public class PortalController : Controller
             case ProjectStatus.AwaitingDeposit:
                 return View("Pay", vm);
 
-            default: // Active, Completed_Unpaid, Paid_In_Full
+            default:
                 return View("Progress", vm);
         }
     }
 
-    // ------------------------------------------------------------------
-    // FR-08 / FR-09: typed e-signature, audit trail, scope lock
-    // ------------------------------------------------------------------
     [HttpPost("sign")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Sign(string slug, string? signerFullName, bool agree)
@@ -62,7 +53,6 @@ public class PortalController : Controller
 
         var project = vm.Project;
 
-        // Already signed (or past the signing stage): just show the current screen
         if (project.Status != ProjectStatus.Draft || vm.Signature != null)
             return RedirectToAction(nameof(Index), new { slug });
 
@@ -92,7 +82,6 @@ public class PortalController : Controller
 
         try
         {
-            // quote_signatures.project_id is UNIQUE, so a double submit cannot create two signatures
             await db.From<QuoteSignature>().Insert(signature);
         }
         catch (Exception ex)
@@ -101,8 +90,6 @@ public class PortalController : Controller
             return RedirectToAction(nameof(Index), new { slug });
         }
 
-        // FR-09: lock the scope and move Draft -> Awaiting_Deposit
-        // (with a 0% deposit there is nothing to wait for, so work can start)
         project.Status = vm.DepositAmount <= 0 ? ProjectStatus.Active : ProjectStatus.AwaitingDeposit;
         await db.From<Project>().Update(project);
 
@@ -110,9 +97,6 @@ public class PortalController : Controller
         return RedirectToAction(nameof(Index), new { slug });
     }
 
-    // ------------------------------------------------------------------
-    // Payment choice
-    // ------------------------------------------------------------------
     [HttpGet("pay")]
     public async Task<IActionResult> Pay(string slug)
     {
@@ -122,9 +106,6 @@ public class PortalController : Controller
         return View(vm);
     }
 
-    // ------------------------------------------------------------------
-    // FR-13: manual EFT details + FR-14: proof of payment upload
-    // ------------------------------------------------------------------
     [HttpGet("eft")]
     public async Task<IActionResult> Eft(string slug)
     {
@@ -133,7 +114,6 @@ public class PortalController : Controller
         if (!CanPay(vm) || vm.PendingEft != null) return RedirectToAction(nameof(Pay), new { slug });
         return View(vm);
     }
-
     [HttpPost("eft")]
     [ValidateAntiForgeryToken]
     [RequestSizeLimit(12 * 1024 * 1024)]
@@ -162,7 +142,6 @@ public class PortalController : Controller
             bytes = ms.ToArray();
         }
 
-        // PDF only: check the extension and the file signature ("%PDF")
         var isPdf = Path.GetExtension(proof.FileName).Equals(".pdf", StringComparison.OrdinalIgnoreCase)
                     && bytes.Length > 4
                     && bytes[0] == 0x25 && bytes[1] == 0x50 && bytes[2] == 0x44 && bytes[3] == 0x46;
@@ -182,7 +161,6 @@ public class PortalController : Controller
             Status = TransactionStatus.PendingVerification
         };
 
-        // Files are stored as <project_id>/<transaction_id>.pdf (matches the storage policy)
         var path = $"{vm.Project.Id}/{tx.Id}.pdf";
 
         try
@@ -205,9 +183,48 @@ public class PortalController : Controller
         return RedirectToAction(nameof(Pay), new { slug });
     }
 
-    // ------------------------------------------------------------------
-    // Helpers
-    // ------------------------------------------------------------------
+    [HttpGet("quote-pdf")]
+    public async Task<IActionResult> QuotePdf(string slug)
+    {
+        var vm = await LoadAsync(slug);
+        if (vm == null) return View("Unavailable");
+
+        var pdfBytes = _pdf.GenerateQuotePdf(vm.Project, vm.Freelancer, vm.Milestones, vm.Signature);
+        var fileName = $"{vm.Project.ReferenceCode}-Quote.pdf";
+        return File(pdfBytes, "application/pdf", fileName);
+    }
+
+    [HttpGet("receipt/{transactionId:guid}")]
+    public async Task<IActionResult> ReceiptPdf(string slug, Guid transactionId)
+    {
+        var vm = await LoadAsync(slug);
+        if (vm == null) return View("Unavailable");
+
+        var tx = vm.Transactions.FirstOrDefault(t => t.Id == transactionId && t.Status == TransactionStatus.Success);
+        if (tx == null) return NotFound();
+
+        var pdfBytes = _pdf.GenerateReceiptPdf(vm.Project, vm.Freelancer, tx);
+        var fileName = $"{vm.Project.ReferenceCode}-Receipt-{tx.Id.ToString()[..8].ToUpperInvariant()}.pdf";
+        return File(pdfBytes, "application/pdf", fileName);
+    }
+
+    [HttpGet("pop/{transactionId:guid}")]
+    public async Task<IActionResult> DownloadPop(string slug, Guid transactionId)
+    {
+        var vm = await LoadAsync(slug);
+        if (vm == null) return View("Unavailable");
+
+        var tx = vm.Transactions.FirstOrDefault(t => t.Id == transactionId && !string.IsNullOrWhiteSpace(t.PopFilePath));
+        if (tx == null) return NotFound();
+
+        var db = await _admin.GetAsync();
+        var signedUrl = await db.Storage
+            .From("proof-of-payments")
+            .CreateSignedUrl(tx.PopFilePath!, 300);
+
+        return Redirect(signedUrl);
+    }
+
     private static bool CanPay(PortalViewModel vm) =>
         (vm.Project.Status == ProjectStatus.AwaitingDeposit || vm.Project.Status == ProjectStatus.CompletedUnpaid)
         && vm.AmountDueNow > 0;
@@ -234,7 +251,6 @@ public class PortalController : Controller
 
         var signature = await db.From<QuoteSignature>().Where(s => s.ProjectId == project.Id).Single();
 
-        // Recovery: signature saved but the status update did not complete
         if (project.Status == ProjectStatus.Draft && signature != null)
         {
             project.Status = ProjectStatus.AwaitingDeposit;
@@ -251,7 +267,6 @@ public class PortalController : Controller
         };
     }
 
-    /// <summary>Fingerprint of exactly what the client agreed to (stored in quote_signatures.scope_hash).</summary>
     private static string ComputeScopeHash(Project p, IEnumerable<Milestone> milestones)
     {
         var inv = CultureInfo.InvariantCulture;

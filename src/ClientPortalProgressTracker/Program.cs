@@ -1,7 +1,10 @@
 using ClientPortalProgressTracker.Models.Entities;
 using ClientPortalProgressTracker.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using QuestPDF.Infrastructure;
 using Supabase.Extensions.DependencyInjection;
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,7 +39,7 @@ builder.Services.AddSupabase(
 // Server-side database client (service role key)
 builder.Services.AddSingleton<SupabaseAdmin>();
 builder.Services.AddSingleton<EmailService>();
-
+builder.Services.AddSingleton<PortalPdfService>();
 
 var app = builder.Build();
 
