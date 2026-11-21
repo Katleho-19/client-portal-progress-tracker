@@ -31,7 +31,7 @@ Solo freelancers often rely on static PDF quotes, manual bank details sent over 
 
 ## Engineering & Design Documentation
 All requirements, UI prototypes, and UML system models are stored in the [`Documentations`](./Documentations) folder:
-* [Software Requirements Specification (SRS)](./Documentations/Client%20Portal%20%26%20Progress%20tracker%20(Phase%202%20SRS).pdf)
+* [Software Requirements Specification (SRS)](./Documentations/Client%20Portal%20%26%20Deposit%20Tracker%20(Phase%202%20Final%20SRS).pdf)
 * [Interactive Figma Prototype (Hi-Fi Wireframes)](https://www.figma.com/proto/GfBlpYxeQ12siRCBQE4mss/Client-Portal---Deposit-Tracker---Lo-fi-Wireframes?node-id=15-20&p=f&t=w54GC1z7kqDgEsGJ-1&scaling=min-zoom&content-scaling=fixed&page-id=15%3A2&starting-point-node-id=15%3A20&show-proto-sidebar=1)
 
 ---
@@ -40,8 +40,8 @@ All requirements, UI prototypes, and UML system models are stored in the [`Docum
 - [x] **Phase 1 — Planning & Requirements:** Finalized initial SRS (`15 FRs`, `5 NFRs`), data model, and feasibility & risk analysis.
 - [x] **Phase 2 — System Architecture & Design:** Completed Lo-Fi & Hi-Fi Figma wireframes, 5-table ERD, UML Use Case diagram, and Paystack/EFT Sequence diagrams.
 - [x] **Phase 3 — Database & Security Setup:** Deploy PostgreSQL schema, Row-Level Security (RLS) policies, and private POP storage bucket in Supabase.
-- [ ] **Phase 4 — Core Backend & Auth:** Initialize ASP.NET Core solution, Supabase Auth integration, and Freelancer Business Profile.
-- [ ] **Phase 5 — Client Portal & E-Signatures:** Build passwordless portal routing, ECTA audit logging, and QuestPDF quote stamping.
+- [x] **Phase 4 — Core Backend & Auth:** Initialize ASP.NET Core solution, Supabase Auth integration, and Freelancer Business Profile.
+- [x] **Phase 5 — Client Portal & E-Signatures:** Build passwordless portal routing, ECTA audit logging, and QuestPDF quote stamping.
 - [ ] **Phase 6 — Payments & Deployment:** Integrate Paystack checkout/webhooks, Manual EFT POP verification, and deploy live.
 
 ---
