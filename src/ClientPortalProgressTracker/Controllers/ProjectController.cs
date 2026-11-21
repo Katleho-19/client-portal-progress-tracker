@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using ClientPortalProgressTracker.Models.Entities;
 using ClientPortalProgressTracker.Models.ViewModels;
@@ -54,9 +55,7 @@ public class ProjectsController : Controller
         var db = await _admin.GetAsync();
         var (referenceCode, _) = await GenerateReferencePreviewAsync();
 
-        var slugBase = Regex.Replace(model.Title.ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
-        if (string.IsNullOrEmpty(slugBase)) slugBase = "project";
-        var portalSlug = $"{slugBase}-{Guid.NewGuid().ToString("N")[..8]}";
+        var portalSlug = BuildSlug(model.Title);
 
         var isDraft = string.Equals(submitAction, "draft", StringComparison.OrdinalIgnoreCase);
         var calculatedTotal = validMilestones.Sum(m => m.Amount);
@@ -77,7 +76,7 @@ public class ProjectsController : Controller
             TotalAmount = calculatedTotal,
             DepositPercentage = model.DepositPercentage,
             AmountPaid = 0m,
-            Status = isDraft ? ProjectStatus.Draft : ProjectStatus.AwaitingDeposit
+            Status = ProjectStatus.Draft
         };
 
         await db.From<Project>().Insert(project);
@@ -96,7 +95,7 @@ public class ProjectsController : Controller
 
         TempData["SuccessMessage"] = isDraft
             ? $"Draft saved ({project.ReferenceCode})."
-            : $"Project created! Client portal link ready: /p/{project.PortalSlug}";
+            : $"Quote created ({project.ReferenceCode})! Share the portal link so your client can review and sign.";
 
         return RedirectToAction(nameof(Details), new { id = project.Id });
     }
@@ -193,7 +192,6 @@ public class ProjectsController : Controller
         TempData["SuccessMessage"] = "Quote and milestone pricing updated.";
         return RedirectToAction(nameof(Details), new { id = project.Id });
     }
-
     [HttpGet]
     public async Task<IActionResult> Details(Guid id)
     {
@@ -229,6 +227,7 @@ public class ProjectsController : Controller
 
         return View(vm);
     }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SendQuoteEmail(Guid projectId)
@@ -260,10 +259,6 @@ public class ProjectsController : Controller
 
             project.IsLinkActive = true;
             project.QuoteSentAt = DateTime.UtcNow;
-            if (project.Status == ProjectStatus.Draft)
-            {
-                project.Status = ProjectStatus.AwaitingDeposit;
-            }
             await db.From<Project>().Update(project);
 
             TempData["SuccessMessage"] = $"Quote emailed to {project.ClientEmail}.";
@@ -343,9 +338,7 @@ public class ProjectsController : Controller
 
         if (project == null) return NotFound();
 
-        var slugBase = Regex.Replace(project.Title.ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
-        if (string.IsNullOrEmpty(slugBase)) slugBase = "project";
-        project.PortalSlug = $"{slugBase}-{Guid.NewGuid().ToString("N")[..8]}";
+        project.PortalSlug = BuildSlug(project.Title);
         project.IsLinkActive = true;
 
         await db.From<Project>().Update(project);
@@ -353,7 +346,6 @@ public class ProjectsController : Controller
         TempData["SuccessMessage"] = "New client portal link generated. The previous link is now inactive.";
         return RedirectToAction(nameof(Details), new { id = projectId });
     }
-
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> VerifyEft(Guid projectId, Guid transactionId)
@@ -405,13 +397,14 @@ public class ProjectsController : Controller
 
         if (tx != null && tx.Status == TransactionStatus.PendingVerification)
         {
-            tx.Status = TransactionStatus.Failed;
+            tx.Status = TransactionStatus.Rejected;
             await db.From<PaymentTransaction>().Update(tx);
             TempData["SuccessMessage"] = "Proof of payment rejected. The client can upload a valid POP from their portal.";
         }
 
         return RedirectToAction(nameof(Details), new { id = projectId });
     }
+
     [HttpGet]
     public async Task<IActionResult> ViewPop(Guid projectId, Guid transactionId)
     {
@@ -512,6 +505,14 @@ public class ProjectsController : Controller
         return RedirectToAction("Index", "Home");
     }
 
+    private static string BuildSlug(string title)
+    {
+        var slugBase = Regex.Replace(title.ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
+        if (string.IsNullOrEmpty(slugBase)) slugBase = "project";
+        var token = Convert.ToHexString(RandomNumberGenerator.GetBytes(10)).ToLowerInvariant();
+        return $"{slugBase}-{token}";
+    }
+
     private async Task<(string ReferenceCode, string Prefix)> GenerateReferencePreviewAsync()
     {
         var db = await _admin.GetAsync();
@@ -521,9 +522,8 @@ public class ProjectsController : Controller
         var biz = string.IsNullOrWhiteSpace(freelancer?.BusinessName) ? "KM" : freelancer.BusinessName.Trim();
         var parts = biz.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         var prefix = parts.Length >= 2
-    ? $"{parts[0][0]}{parts[1][0]}".ToUpper()
-    : biz[..Math.Min(2, biz.Length)].ToUpper();
-
+            ? $"{parts[0][0]}{parts[1][0]}".ToUpper()
+            : biz[..Math.Min(2, biz.Length)].ToUpper();
 
         var nextNumber = existing.Models.Count + 1;
         return ($"{prefix}-{DateTime.UtcNow.Year}-{nextNumber:D3}", prefix);

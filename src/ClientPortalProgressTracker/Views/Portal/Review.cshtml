@@ -1,0 +1,100 @@
+﻿ 
+@model ClientPortalProgressTracker.Models.ViewModels.PortalViewModel
+@using ClientPortalProgressTracker.Models.Entities
+@{
+    Layout = "_PortalLayout";
+    var p = Model.Project;
+    ViewData["Title"] = p.Title;
+}
+@*Programmer: Katleho Innocent Makhoali*@
+<partial name="_PortalHeader" model="Model" />
+
+<div class="portal-content">
+    <partial name="_PortalAlerts" />
+
+    <div>
+        <h1 class="portal-title">@p.Title</h1>
+        <p class="portal-meta">Prepared for @p.ClientName &middot; Ref @p.ReferenceCode</p>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+        <span class="status-pill status-awaiting"><span class="status-dot"></span>Awaiting your approval</span>
+        @if (p.QuoteExpiresAt.HasValue)
+        {
+            <span class="status-pill status-active">Valid until @p.QuoteExpiresAt.Value.ToString("dd MMM yyyy")</span>
+        }
+    </div>
+
+    <section class="portal-card">
+        <h2>Scope &amp; milestones</h2>
+        @for (var i = 0; i < Model.Milestones.Count; i++)
+        {
+            var ms = Model.Milestones[i];
+            <div class="portal-ms-row">
+                <div class="portal-ms-num">@(i + 1)</div>
+                <div class="portal-ms-text">
+                    <div class="portal-ms-title">@ms.Title</div>
+                    @if (!string.IsNullOrWhiteSpace(ms.Description))
+                    {
+                        <div class="portal-ms-desc">@ms.Description</div>
+                    }
+                </div>
+                @if (Model.HasPrices)
+                {
+                    <div class="portal-ms-price">R @((ms.Amount ?? 0m).ToString("N2"))</div>
+                }
+            </div>
+        }
+    </section>
+
+    <section class="portal-card">
+        <h2>Price</h2>
+        <div class="portal-kv"><span>Total</span><strong>R @p.TotalAmount.ToString("N2")</strong></div>
+        <div class="portal-kv"><span>Balance on completion</span><span>R @((p.TotalAmount - Model.DepositAmount).ToString("N2"))</span></div>
+        <div class="portal-due-box">
+            <span>Deposit due after signing (@p.DepositPercentage%)</span>
+            <strong>R @Model.DepositAmount.ToString("N2")</strong>
+        </div>
+    </section>
+
+    <section class="portal-card">
+        <h2>Approve &amp; sign</h2>
+        <form asp-controller="Portal" asp-action="Sign" asp-route-slug="@p.PortalSlug" method="post" id="signForm" autocomplete="off">
+            <label class="portal-check">
+                <input type="checkbox" name="agree" value="true" id="agreeBox" />
+                <span>I agree to the project scope, milestones, and payment terms</span>
+            </label>
+
+            <label for="signerName" class="portal-label">Type your full legal name</label>
+            <input type="text" name="signerFullName" id="signerName" maxlength="150" class="form-control figma-input" placeholder="e.g. Jane Doe" />
+
+            <div class="portal-sign-preview">
+                <div class="portal-sign-label">SIGNATURE PREVIEW</div>
+                <div class="portal-sign-text" id="signPreview">Your full name</div>
+            </div>
+
+            <button type="submit" id="signBtn" class="btn btn-figma-primary mt-3" disabled>Approve &amp; sign quote</button>
+            <p class="portal-fine">Your name, the date and time, and your device information are recorded as proof that you accepted this quote. Once signed, the scope can no longer be changed.</p>
+        </form>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const agree = document.getElementById("agreeBox");
+            const nameInput = document.getElementById("signerName");
+            const btn = document.getElementById("signBtn");
+            const preview = document.getElementById("signPreview");
+            function refresh() {
+                const n = nameInput.value.trim();
+                preview.textContent = n || "Your full name";
+                preview.classList.toggle("is-empty", !n);
+                btn.disabled = !(agree.checked && n.length >= 3);
+            }
+            agree.addEventListener("change", refresh);
+            nameInput.addEventListener("input", refresh);
+            refresh();
+        })();
+    </script>
+}

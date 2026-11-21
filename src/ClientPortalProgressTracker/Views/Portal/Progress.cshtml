@@ -1,0 +1,124 @@
+﻿@*Programmer: Katleho Innocent Makhoali *@
+@model ClientPortalProgressTracker.Models.ViewModels.PortalViewModel
+@using ClientPortalProgressTracker.Models.Entities
+@{
+    Layout = "_PortalLayout";
+    var p = Model.Project;
+    var isPaid = p.Status == ProjectStatus.PaidInFull;
+    var canPayBalance = p.Status == ProjectStatus.CompletedUnpaid && Model.AmountDueNow > 0;
+    ViewData["Title"] = p.Title;
+    var firstOpenIndex = Model.Milestones.FindIndex(m => m.Status != MilestoneStatus.Completed);
+}
+<partial name="_PortalHeader" model="Model" />
+
+<div class="portal-content">
+    <partial name="_PortalAlerts" />
+
+    @if (isPaid)
+    {
+        <div class="portal-alert portal-alert-success"><strong>Paid in full</strong> &middot; This page is now a read-only archive.</div>
+    }
+
+    <div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <h1 class="portal-title">@p.Title</h1>
+            @if (isPaid)
+            {
+                <span class="status-pill status-paid">Paid</span>
+            }
+            else if (p.Status == ProjectStatus.CompletedUnpaid)
+            {
+
+                <span class="status-pill status-awaiting">Balance due</span>
+            }
+            else
+            {
+
+                <span class="status-pill status-active">Active</span>
+            }
+        </div>
+        <p class="portal-meta">Ref @p.ReferenceCode</p>
+    </div>
+
+    <section class="portal-card">
+        <div class="d-flex justify-content-between mb-2">
+            <strong>Overall progress</strong>
+            <strong class="@(isPaid ? "text-success" : "text-brand")">@Model.ProgressPercent%</strong>
+        </div>
+        <div class="portal-bar"><div class="portal-bar-fill @(isPaid ? "is-green" : "")" style="width:@(Model.ProgressPercent)%"></div></div>
+        <div class="portal-meta mt-2">@Model.CompletedCount of @Model.Milestones.Count milestones complete</div>
+    </section>
+
+    <section class="portal-card">
+        <h2>Milestones</h2>
+        @for (var i = 0; i < Model.Milestones.Count; i++)
+        {
+            var ms = Model.Milestones[i];
+            var state = ms.Status == MilestoneStatus.Completed ? "done"
+            : (ms.Status == MilestoneStatus.InProgress || i == firstOpenIndex ? "doing" : "todo");
+            var label = ms.Status == MilestoneStatus.Completed ? "Completed"
+            : (ms.Status == MilestoneStatus.InProgress ? "In progress" : "Pending");
+            <div class="portal-step">
+                <div class="portal-rail">
+                    <div class="portal-dot @state">
+                        @if (state == "done")
+                        {
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        }
+                    </div>
+                    @if (i < Model.Milestones.Count - 1)
+                    {
+                        <div class="portal-line @(state == "done" ? "done" : "")"></div>
+                    }
+                </div>
+                <div class="portal-step-text">
+                    <div class="portal-ms-title">@ms.Title</div>
+                    <div class="portal-ms-desc @(ms.Status == MilestoneStatus.InProgress ? "text-brand" : "")">@label@(ms.CompletedAt.HasValue ? " · " + ms.CompletedAt.Value.ToString("dd MMM yyyy") : "")</div>
+                </div>
+            </div>
+        }
+    </section>
+
+    <section class="portal-card">
+        <h2>Payments</h2>
+        <div class="portal-kv"><span>Total</span><strong>R @p.TotalAmount.ToString("N2")</strong></div>
+        <div class="portal-kv"><span>Paid</span><strong class="text-success">R @p.AmountPaid.ToString("N2")</strong></div>
+        <div class="portal-kv"><span>Balance due</span><strong>R @Model.BalanceDue.ToString("N2")</strong></div>
+
+        @if (canPayBalance)
+        {
+            <a asp-controller="Portal" asp-action="Pay" asp-route-slug="@p.PortalSlug" class="btn btn-figma-primary mt-2">Pay final balance</a>
+        }
+        else if (!isPaid)
+        {
+            <p class="portal-fine">The final balance becomes payable once all milestones are completed.</p>
+        }
+    </section>
+
+    @if (Model.Transactions.Any(t => t.Status == TransactionStatus.Success))
+    {
+        <section class="portal-card">
+            <h2>Receipts</h2>
+            @foreach (var tx in Model.Transactions.Where(t => t.Status == TransactionStatus.Success))
+            {
+                var typeLabel = tx.PaymentType == PaymentType.Deposit ? "Deposit"
+                : (tx.PaymentType == PaymentType.FinalBalance ? "Final balance" : "Full payment");
+                <div class="portal-kv">
+                    <span>
+                        @typeLabel &middot; @((tx.PaidAt ?? tx.CreatedAt).ToString("dd MMM yyyy"))
+                    </span>
+                    <strong>R @tx.Amount.ToString("N2")</strong>
+                </div>
+            }
+        </section>
+    }
+
+    @if (Model.Signature != null)
+    {
+        <section class="portal-card">
+            <h2>Signed quote</h2>
+            <div class="portal-kv"><span>Signed by</span><strong>@Model.Signature.SignerFullName</strong></div>
+            <div class="portal-kv"><span>Signed on</span><strong>@Model.Signature.SignedAt.ToString("dd MMM yyyy, HH:mm") UTC</strong></div>
+        </section>
+    }
+</div>

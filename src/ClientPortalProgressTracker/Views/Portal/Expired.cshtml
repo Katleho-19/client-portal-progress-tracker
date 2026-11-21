@@ -1,0 +1,17 @@
+﻿@model ClientPortalProgressTracker.Models.ViewModels.PortalViewModel
+@{
+    Layout = "_PortalLayout";
+    ViewData["Title"] = "Quote expired";
+}
+@*Programmer: Katleho Innocent Makhoali*@
+<partial name="_PortalHeader" model="Model" />
+<div class="portal-content portal-center">
+    <div class="portal-icon-circle portal-icon-amber">!</div>
+    <h1 class="portal-title">This quote has expired</h1>
+    <p class="portal-meta">
+        The quote for <strong>@Model.Project.Title</strong> was valid until
+        @(Model.Project.QuoteExpiresAt?.ToString("dd MMM yyyy")).
+        Please contact @(string.IsNullOrWhiteSpace(Model.Freelancer.BusinessName) ? Model.Freelancer.FullName : Model.Freelancer.BusinessName)
+        to ask for an updated quote.
+    </p>
+</div>

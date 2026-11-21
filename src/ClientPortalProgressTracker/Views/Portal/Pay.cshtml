@@ -1,0 +1,70 @@
+﻿ @model ClientPortalProgressTracker.Models.ViewModels.PortalViewModel
+@using ClientPortalProgressTracker.Models.Entities
+@{
+    Layout = "_PortalLayout";
+    var p = Model.Project;
+    ViewData["Title"] = "Payment";
+}
+@*Programmer: Katleho Innocent Makhoali*@ 
+<partial name="_PortalHeader" model="Model" />
+
+<div class="portal-content">
+    <partial name="_PortalAlerts" />
+
+    <div>
+        <h1 class="portal-title">@p.Title</h1>
+        <p class="portal-meta">Ref @p.ReferenceCode</p>
+    </div>
+
+    @if (Model.Signature != null)
+    {
+        <div class="portal-alert portal-alert-success">
+            Quote signed by <strong>@Model.Signature.SignerFullName</strong> on @Model.Signature.SignedAt.ToString("dd MMM yyyy")
+        </div>
+    }
+
+    <section class="portal-card portal-center-card">
+        <div class="portal-meta">@Model.PaymentLabelDue</div>
+        <div class="portal-amount">R @Model.AmountDueNow.ToString("N2")</div>
+        <div class="portal-meta">Total project value R @p.TotalAmount.ToString("N2")</div>
+    </section>
+
+    @if (Model.PendingEft != null)
+    {
+        <section class="portal-card">
+            <h2>Payment under review</h2>
+            <span class="status-pill status-pending-ver mb-2">Pending verification</span>
+            <p class="portal-meta mb-0">
+                We received your proof of payment for R @Model.PendingEft.Amount.ToString("N2") on
+                @Model.PendingEft.CreatedAt.ToString("dd MMM yyyy"). Your freelancer will confirm it once the funds clear in their account.
+            </p>
+        </section>
+    }
+    else
+    {
+        @if (Model.RejectedProof != null)
+        {
+            <div class="portal-alert portal-alert-error">
+                Your last proof of payment could not be verified. Please check the payment and upload a valid proof.
+            </div>
+        }
+
+        <section class="portal-card">
+            <h2>Pay online</h2>
+            <p class="portal-meta">Card, Instant EFT or SnapScan.</p>
+            <button type="button" class="btn btn-figma-secondary" disabled>Online payments coming soon</button>
+        </section>
+
+        <div class="portal-or">or</div>
+
+        <section class="portal-card">
+            <h2>Pay via bank transfer (EFT)</h2>
+            <p class="portal-meta">Transfer the amount, then upload your proof of payment.</p>
+            <a asp-controller="Portal" asp-action="Eft" asp-route-slug="@p.PortalSlug" class="btn btn-figma-primary">Show banking details</a>
+        </section>
+    }
+
+    <p class="portal-fine text-center">
+        <a asp-controller="Portal" asp-action="Index" asp-route-slug="@p.PortalSlug" class="figma-link">Refresh status</a>
+    </p>
+</div>

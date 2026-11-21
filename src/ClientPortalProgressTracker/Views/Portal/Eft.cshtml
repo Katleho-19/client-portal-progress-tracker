@@ -1,0 +1,96 @@
+﻿@model ClientPortalProgressTracker.Models.ViewModels.PortalViewModel
+@{
+    Layout = "_PortalLayout";
+    var p = Model.Project;
+    var f = Model.Freelancer;
+    var holder = string.IsNullOrWhiteSpace(f.AccountHolder)
+        ? (string.IsNullOrWhiteSpace(f.BusinessName) ? f.FullName : f.BusinessName)
+        : f.AccountHolder;
+    var hasBank = !string.IsNullOrWhiteSpace(f.BankName) && !string.IsNullOrWhiteSpace(f.AccountNumber);
+    ViewData["Title"] = "Bank transfer";
+}
+@*Programmer: Katleho Innocent Makhoali*@ 
+<partial name="_PortalHeader" model="Model" />
+
+<div class="portal-content">
+    <partial name="_PortalAlerts" />
+
+    <a asp-controller="Portal" asp-action="Pay" asp-route-slug="@p.PortalSlug" class="figma-link">&larr; Back</a>
+
+    <div>
+        <h1 class="portal-title">Pay via bank transfer</h1>
+        <p class="portal-meta">Use the details below, then upload your proof of payment.</p>
+    </div>
+
+    @if (!hasBank)
+    {
+        <div class="portal-alert portal-alert-error">
+            Banking details have not been added yet. Please contact @(f.FullName + (string.IsNullOrWhiteSpace(f.PhoneNumber) ? "" : " on " + f.PhoneNumber)) to get them.
+        </div>
+    }
+    else
+    {
+        <section class="portal-card">
+            <h2>Banking details</h2>
+            <div class="portal-kv"><span>Bank</span><strong>@f.BankName</strong></div>
+            <div class="portal-kv"><span>Account name</span><strong>@holder</strong></div>
+            <div class="portal-kv">
+                <span>Account number</span>
+                <strong>@f.AccountNumber <button type="button" class="portal-copy" data-copy="@f.AccountNumber">Copy</button></strong>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(f.BranchCode))
+            {
+                <div class="portal-kv"><span>Branch code</span><strong>@f.BranchCode</strong></div>
+            }
+            <div class="portal-kv">
+                <span>Amount</span>
+                <strong class="text-brand">R @Model.AmountDueNow.ToString("N2") <button type="button" class="portal-copy" data-copy="@(Model.AmountDueNow.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture))">Copy</button></strong>
+            </div>
+            <div class="portal-ref-box">
+                <div class="portal-sign-label">PAYMENT REFERENCE</div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <strong class="portal-ref">@p.ReferenceCode</strong>
+                    <button type="button" class="portal-copy" data-copy="@p.ReferenceCode">Copy</button>
+                </div>
+                <div class="portal-fine mb-0">Use this exact reference so your payment can be matched.</div>
+            </div>
+        </section>
+
+        <section class="portal-card">
+            <h2>Upload proof of payment</h2>
+            <form asp-controller="Portal" asp-action="EftUpload" asp-route-slug="@p.PortalSlug" method="post" enctype="multipart/form-data">
+                <label class="portal-dropzone" for="proofFile">
+                    <strong id="proofName">Tap to choose your proof of payment</strong>
+                    <span>PDF, up to 10 MB</span>
+                </label>
+                <input type="file" id="proofFile" name="proof" accept="application/pdf,.pdf" class="d-none" />
+                <button type="submit" class="btn btn-figma-primary mt-3" id="proofBtn" disabled>Submit proof of payment</button>
+            </form>
+        </section>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            document.querySelectorAll("[data-copy]").forEach(function (b) {
+                b.addEventListener("click", function () {
+                    navigator.clipboard.writeText(b.getAttribute("data-copy")).then(function () {
+                        const old = b.textContent; b.textContent = "Copied";
+                        setTimeout(function () { b.textContent = old; }, 1500);
+                    });
+                });
+            });
+            const file = document.getElementById("proofFile");
+            const name = document.getElementById("proofName");
+            const btn = document.getElementById("proofBtn");
+            if (file) {
+                file.addEventListener("change", function () {
+                    const chosen = file.files && file.files[0];
+                    name.textContent = chosen ? chosen.name : "Tap to choose your proof of payment";
+                    btn.disabled = !chosen;
+                });
+            }
+        })();
+    </script>
+}

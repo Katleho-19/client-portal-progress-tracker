@@ -1,0 +1,23 @@
+﻿@model ClientPortalProgressTracker.Models.ViewModels.PortalViewModel
+@*Programmer: Katleho Innocent Makhoali*@
+@{
+    var f = Model.Freelancer;
+    var brandName = string.IsNullOrWhiteSpace(f.BusinessName) ? f.FullName : f.BusinessName;
+}
+
+<header class="portal-header">
+    <div class="portal-brand">
+        @if (!string.IsNullOrWhiteSpace(f.LogoUrl))
+        {
+            <img src="@f.LogoUrl" alt="@brandName" class="portal-logo" />
+        }
+        else
+        {
+            <div class="portal-avatar">@Model.Initials</div>
+        }
+        <div class="portal-brand-text">
+            <div class="portal-brand-name">@brandName</div>
+            <div class="portal-brand-sub">Client Portal</div>
+        </div>
+    </div>
+</header>

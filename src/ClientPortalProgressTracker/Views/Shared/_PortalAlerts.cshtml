@@ -1,0 +1,14 @@
+﻿@*Programmer: Katleho Innocent Makhoali*@
+@if (TempData["Success"] is string successMsg && !string.IsNullOrWhiteSpace(successMsg))
+{
+    <div class="portal-alert portal-alert-success">
+        @successMsg
+    </div>
+}
+
+@if (TempData["Error"] is string errorMsg && !string.IsNullOrWhiteSpace(errorMsg))
+{
+    <div class="portal-alert portal-alert-error">
+        @errorMsg
+    </div>
+}
