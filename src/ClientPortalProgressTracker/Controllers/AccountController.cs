@@ -145,12 +145,23 @@ public class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
     {
+        ModelState.Remove(nameof(model.RefreshToken));
+
         if (!ModelState.IsValid) return View(model);
 
         try
         {
             await _supabase.InitializeAsync();
-            await _supabase.Auth.SetSession(model.AccessToken, model.RefreshToken);
+
+            if (!string.IsNullOrEmpty(model.RefreshToken))
+            {
+                await _supabase.Auth.SetSession(model.AccessToken, model.RefreshToken);
+            }
+            else
+            {
+                await _supabase.Auth.VerifyTokenHash(model.AccessToken, Constants.EmailOtpType.Recovery);
+            }
+
             await _supabase.Auth.Update(new UserAttributes { Password = model.NewPassword });
 
             ViewBag.PasswordUpdated = true;
@@ -162,6 +173,8 @@ public class AccountController : Controller
             return View(model);
         }
     }
+
+
 
     [Authorize]
     [HttpPost]
