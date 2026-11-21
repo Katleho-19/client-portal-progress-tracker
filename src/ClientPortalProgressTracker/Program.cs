@@ -1,12 +1,25 @@
 using ClientPortalProgressTracker.Models.Entities;
 using ClientPortalProgressTracker.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Supabase.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Cookie authentication for signed-in freelancers
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.LogoutPath = "/Account/Logout";
+        options.AccessDeniedPath = "/Account/Login";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+        options.SlidingExpiration = true;
+    });
 
 // Per-request client (anon key): used only for sign-up, sign-in and password reset
 builder.Services.AddSupabase(
@@ -22,20 +35,21 @@ builder.Services.AddSupabase(
 
 // Server-side database client (service role key)
 builder.Services.AddSingleton<SupabaseAdmin>();
+builder.Services.AddSingleton<EmailService>();
+
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication(); // Added before UseAuthorization
 app.UseAuthorization();
 
 app.MapStaticAssets();

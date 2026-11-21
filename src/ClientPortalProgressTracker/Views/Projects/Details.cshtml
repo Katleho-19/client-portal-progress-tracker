@@ -1,0 +1,322 @@
+﻿@model ClientPortalProgressTracker.Models.ViewModels.ProjectDetailsViewModel
+@using ClientPortalProgressTracker.Models.Entities
+@{
+    ViewData["Title"] = Model.Project.Title;
+    var p = Model.Project;
+    bool isSigned = Model.Signature != null;
+
+    string statusClass = "status-draft";
+    string statusLabel = "Draft";
+    if (p.Status == ProjectStatus.AwaitingDeposit) { statusClass = "status-awaiting"; statusLabel = "Awaiting signature"; }
+    else if (p.Status == ProjectStatus.Active || p.Status == ProjectStatus.CompletedUnpaid) { statusClass = "status-active"; statusLabel = "Active"; }
+    else if (p.Status == ProjectStatus.PaidInFull) { statusClass = "status-paid"; statusLabel = "Paid in full"; }
+
+    var waRaw = string.IsNullOrWhiteSpace(p.MessageToClient)
+        ? $"Hi {p.ClientName}, here is your project quote & client portal for {p.Title} ({p.ReferenceCode}): {Model.PortalUrl}"
+        : $"Hi {p.ClientName}, {p.MessageToClient}\n\nReview & sign your quote ({p.ReferenceCode}): {Model.PortalUrl}";
+    var waUrl = $"https://wa.me{Uri.EscapeDataString(waRaw)}";
+}
+
+<div class="mb-3">
+    <a asp-controller="Home" asp-action="Index" asp-route-archived="@p.IsArchived" class="figma-link small">&larr; Projects</a>
+</div>
+
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <h1 class="h3 fw-bold mb-1">@p.Title</h1>
+        <p class="text-muted small mb-0">@p.ClientName &middot; @p.ReferenceCode</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        @if (p.IsArchived)
+        {
+            <span class="status-pill status-draft">Archived</span>
+        }
+        <span class="status-pill @statusClass"><span class="status-dot"></span>@statusLabel</span>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success small py-2 mb-3">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger small py-2 mb-3">@TempData["ErrorMessage"]</div>
+}
+
+@if (p.IsArchived)
+{
+    <div class="portal-link-bar">
+        <div class="small text-muted">
+            Archived on <strong>@p.ArchivedAt?.ToString("dd MMM yyyy")</strong> &middot; Kept as permanent proof &amp; audit record.
+        </div>
+        <div class="d-flex gap-2 flex-shrink-0">
+            <form asp-action="Unarchive" method="post" class="m-0">
+                <input type="hidden" name="projectId" value="@p.Id" />
+                <button type="submit" class="btn-table-action">Restore to active</button>
+            </form>
+            <form asp-action="Delete" method="post" class="m-0"
+                  onsubmit="return confirm('Permanently delete this archived project and its signed quote audit record? This cannot be undone.');">
+                <input type="hidden" name="projectId" value="@p.Id" />
+                <button type="submit" class="btn-reject-red">Delete permanently</button>
+            </form>
+        </div>
+    </div>
+}
+else if (p.Status == ProjectStatus.PaidInFull)
+{
+    <div class="portal-link-bar">
+        <div class="small text-muted">
+            This project is <strong>Paid in full</strong>. Archive it to move it out of your active list while keeping it as proof.
+        </div>
+        <form asp-action="Archive" method="post" class="m-0 flex-shrink-0">
+            <input type="hidden" name="projectId" value="@p.Id" />
+            <button type="submit" class="btn-table-action">Archive project</button>
+        </form>
+    </div>
+}
+else if (!isSigned)
+{
+    <div class="eft-alert-banner">
+        <div>Waiting for your client to review and sign. You can still edit this quote until they sign.</div>
+        <div class="d-flex gap-2 flex-shrink-0">
+            <a asp-action="Edit" asp-route-id="@p.Id" class="btn-table-action bg-white">Edit project</a>
+            <form asp-action="ToggleLink" method="post" class="m-0">
+                <input type="hidden" name="projectId" value="@p.Id" />
+                <button type="submit" class="btn-table-action bg-white">
+                    @(p.IsLinkActive ? "Turn off client link" : "Turn on client link")
+                </button>
+            </form>
+            @if (p.Status == ProjectStatus.Draft && p.AmountPaid == 0)
+            {
+                <form asp-action="Delete" method="post" class="m-0"
+                      onsubmit="return confirm('Delete this draft project?');">
+                    <input type="hidden" name="projectId" value="@p.Id" />
+                    <button type="submit" class="btn-reject-red">Delete</button>
+                </form>
+            }
+        </div>
+    </div>
+}
+
+<div class="portal-link-bar flex-column align-items-stretch gap-3">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div class="portal-link-text d-flex align-items-center gap-2">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+            </svg>
+            <span id="portalUrlText">@Model.PortalUrl</span>
+            @if (!p.IsLinkActive)
+            {
+                <span class="status-pill status-draft">Link disabled</span>
+            }
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn-table-action" onclick="copyDetailLink(this)">Copy link</button>
+            <form asp-action="RegenerateLink" method="post" class="m-0"
+                  onsubmit="return confirm('Generate a new portal link? The current link will stop working.');">
+                <input type="hidden" name="projectId" value="@p.Id" />
+                <button type="submit" class="btn-table-action">Regenerate link</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2 border-top">
+        <div class="text-muted small">
+            @if (p.QuoteSentAt.HasValue)
+            {
+                <span>Sent to <strong>@p.ClientEmail</strong> on @p.QuoteSentAt.Value.ToString("dd MMM yyyy")</span>
+            }
+            else
+            {
+                <span>Send directly to <strong>@p.ClientEmail</strong> or share via WhatsApp</span>
+            }
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <form asp-action="SendQuoteEmail" method="post" class="m-0">
+                <input type="hidden" name="projectId" value="@p.Id" />
+                <button type="submit" class="btn btn-figma-primary" style="width: auto; padding: 0.42rem 0.9rem; font-size: 0.78rem;">
+                    @(p.QuoteSentAt.HasValue ? "Resend email" : "Send quote by email")
+                </button>
+            </form>
+            <a href="@waUrl" target="_blank" rel="noopener noreferrer" class="btn-table-action">
+                Share via WhatsApp
+            </a>
+        </div>
+    </div>
+</div>
+@if (!string.IsNullOrWhiteSpace(p.MessageToClient))
+{
+    <div class="hifi-card mb-4 py-3">
+        <div class="text-muted tx-label-xs fw-bold text-uppercase mb-1">Message to client</div>
+        <div class="small text-dark">@p.MessageToClient</div>
+    </div>
+}
+
+<div class="row g-4">
+    <div class="col-12 col-lg-6">
+        <div class="hifi-card h-100">
+            <h2 class="h6 fw-bold mb-3">Milestones &amp; WBS pricing</h2>
+            @foreach (var ms in Model.Milestones)
+            {
+                var circleClass = ms.Status == MilestoneStatus.Completed
+                ? "ms-completed"
+                : (ms.Status == MilestoneStatus.InProgress ? "ms-inprogress" : "ms-pending");
+
+                <div class="milestone-detail-card">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="ms-status-circle @circleClass mt-1">
+                            @if (ms.Status == MilestoneStatus.Completed)
+                            {
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            }
+                        </div>
+                        <div>
+                            <div class="fw-bold small text-dark">@ms.Title</div>
+                            @if (!string.IsNullOrWhiteSpace(ms.Description))
+                            {
+                                <div class="text-muted small">@ms.Description</div>
+                            }
+                            @if (ms.Amount.HasValue && ms.Amount.Value > 0)
+                            {
+                                <div class="fw-semibold small text-primary mt-1">R @ms.Amount.Value.ToString("N2")</div>
+                            }
+                        </div>
+                    </div>
+
+                    <form asp-action="UpdateMilestoneStatus" method="post" class="m-0 flex-shrink-0">
+                        <input type="hidden" name="projectId" value="@p.Id" />
+                        <input type="hidden" name="milestoneId" value="@ms.Id" />
+                        <select name="status" class="form-select form-select-sm ms-status-select" onchange="this.form.submit()">
+                            <option value="@MilestoneStatus.Pending" selected="@(ms.Status == MilestoneStatus.Pending)">Pending</option>
+                            <option value="@MilestoneStatus.InProgress" selected="@(ms.Status == MilestoneStatus.InProgress)">In progress</option>
+                            <option value="@MilestoneStatus.Completed" selected="@(ms.Status == MilestoneStatus.Completed)">Completed</option>
+                        </select>
+                    </form>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col-12 col-lg-6 d-flex flex-column gap-4">
+        <div class="hifi-card">
+            <h2 class="h6 fw-bold mb-3">Payments</h2>
+
+            <div class="row g-2 p-3 rounded-3 mb-3 payment-summary-box">
+                <div class="col-4">
+                    <div class="text-muted tx-label-xs">Total</div>
+                    <div class="fw-bold h6 mb-0">R @p.TotalAmount.ToString("N0")</div>
+                </div>
+                <div class="col-4">
+                    <div class="text-muted tx-label-xs">Paid</div>
+                    <div class="fw-bold h6 mb-0 text-paid-green">R @p.AmountPaid.ToString("N0")</div>
+                </div>
+                <div class="col-4">
+                    <div class="text-muted tx-label-xs">Balance due</div>
+                    <div class="fw-bold h6 mb-0">R @Model.BalanceDue.ToString("N0")</div>
+                </div>
+            </div>
+
+            @if (Model.Transactions.Count == 0)
+            {
+                <p class="text-muted small mb-0">No payments recorded yet. Share the portal link so your client can sign and pay their deposit.</p>
+            }
+            else
+            {
+                @foreach (var tx in Model.Transactions)
+                {
+                    var isPendingEft = tx.Status == TransactionStatus.PendingVerification;
+                    var isEft = tx.PaymentMethod == PaymentMethod.ManualEft;
+                    var typeLabel = tx.PaymentType == PaymentType.Deposit
+                    ? "Deposit"
+                    : (tx.PaymentType == PaymentType.FinalBalance ? "Final balance" : "Full payment");
+                    var methodLabel = isEft ? "EFT" : "Paystack";
+
+                    <div class="tx-box @(isPendingEft ? "tx-pending-eft" : "")">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="fw-bold small">@typeLabel &middot; @methodLabel</div>
+                                <div class="text-muted tx-sub-text">
+                                    R @tx.Amount.ToString("N2") &middot; @(isPendingEft ? "Proof of payment uploaded" : (tx.PaidAt?.ToString("dd MMM yyyy") ?? tx.CreatedAt.ToString("dd MMM yyyy")))
+                                </div>
+                            </div>
+
+                            @if (tx.Status == TransactionStatus.Success)
+                            {
+                                <span class="status-pill status-paid">Success</span>
+                            }
+                            else if (isPendingEft)
+                            {
+                                <span class="status-pill status-pending-ver">Pending verification</span>
+                            }
+                            else
+                            {
+                                <span class="status-pill status-draft">Rejected</span>
+                            }
+                        </div>
+
+                        @if (isPendingEft)
+                        {
+                            <div class="d-flex flex-wrap gap-2 mt-3">
+                                @if (!string.IsNullOrWhiteSpace(tx.PopFilePath))
+                                {
+                                    <a asp-action="ViewPop" asp-route-projectId="@p.Id" asp-route-transactionId="@tx.Id"
+                                       target="_blank" class="btn-table-action bg-white">View POP</a>
+                                }
+                                <form asp-action="VerifyEft" method="post" class="m-0">
+                                    <input type="hidden" name="projectId" value="@p.Id" />
+                                    <input type="hidden" name="transactionId" value="@tx.Id" />
+                                    <button type="submit" class="btn-confirm-green">&#10003; Confirm payment</button>
+                                </form>
+                                <form asp-action="RejectEft" method="post" class="m-0">
+                                    <input type="hidden" name="projectId" value="@p.Id" />
+                                    <input type="hidden" name="transactionId" value="@tx.Id" />
+                                    <button type="submit" class="btn-reject-red">Reject</button>
+                                </form>
+                            </div>
+                        }
+                    </div>
+                }
+            }
+        </div>
+
+        <div class="hifi-card">
+            <h2 class="h6 fw-bold mb-3">Signed quote</h2>
+
+            @if (Model.Signature == null)
+            {
+                <p class="text-muted small mb-0">Awaiting client signature via the client portal link.</p>
+            }
+            else
+            {
+                <div class="d-flex justify-content-between py-2 border-bottom small">
+                    <span class="text-muted">Signed by</span>
+                    <span class="fw-semibold">@Model.Signature.SignerFullName</span>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom small">
+                    <span class="text-muted">Signed at (UTC)</span>
+                    <span class="fw-semibold">@Model.Signature.SignedAt.ToString("dd MMM yyyy, HH:mm")</span>
+                </div>
+                <div class="d-flex justify-content-between py-2 small">
+                    <span class="text-muted">IP reference</span>
+                    <span class="fw-semibold">@Model.Signature.IpAddress</span>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function copyDetailLink(btn) {
+            const url = document.getElementById("portalUrlText").textContent.trim();
+            navigator.clipboard.writeText(url).then(() => {
+                const orig = btn.textContent;
+                btn.textContent = "Copied";
+                setTimeout(() => btn.textContent = orig, 1800);
+            });
+        }
+    </script>
+}

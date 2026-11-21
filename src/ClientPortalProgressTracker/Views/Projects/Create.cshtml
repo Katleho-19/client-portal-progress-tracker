@@ -1,0 +1,203 @@
+﻿@model ClientPortalProgressTracker.Models.ViewModels.CreateProjectViewModel
+@{
+    ViewData["Title"] = "New project";
+    var hostUrl = ViewBag.HostUrl as string ?? "https://localhost:7253";
+    var previewRef = ViewBag.PreviewRef as string ?? "KM-2026-001";
+}
+
+<div class="mb-3">
+    <a asp-controller="Home" asp-action="Index" class="figma-link small">&larr; Projects</a>
+</div>
+
+<h1 class="h3 fw-bold mb-1">New project</h1>
+<p class="text-muted small mb-4">Itemize your deliverables and deposit. A private client link is generated when you create it.</p>
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2 mb-3"></div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-lg-5">
+            <div class="hifi-card h-100">
+                <h2 class="h6 fw-bold mb-3">Project details</h2>
+
+                <div class="mb-3">
+                    <label asp-for="ClientName" class="form-label figma-label"></label>
+                    <input asp-for="ClientName" class="form-control figma-input" placeholder="Acme Pty Ltd" />
+                    <span asp-validation-for="ClientName" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ClientEmail" class="form-label figma-label"></label>
+                    <input asp-for="ClientEmail" class="form-control figma-input" placeholder="client@acme.co.za" />
+                    <span asp-validation-for="ClientEmail" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label figma-label"></label>
+                    <input asp-for="Title" id="projectTitleInput" class="form-control figma-input" placeholder="Website redesign" />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-5">
+                        <label asp-for="DepositPercentage" class="form-label figma-label"></label>
+                        <input asp-for="DepositPercentage" id="depositPctInput" type="number" min="0" max="100" class="form-control figma-input" />
+                        <span asp-validation-for="DepositPercentage" class="text-danger small"></span>
+                    </div>
+                    <div class="col-7">
+                        <label asp-for="QuoteExpiresAt" class="form-label figma-label"></label>
+                        <input asp-for="QuoteExpiresAt" type="date" class="form-control figma-input" />
+                    </div>
+                </div>
+
+                <div class="mb-0">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label asp-for="MessageToClient" class="form-label figma-label mb-0"></label>
+                        <span class="text-muted tx-label-xs"><span id="msgCharCount">0</span> / 1000</span>
+                    </div>
+                    <textarea asp-for="MessageToClient" id="msgClientInput" rows="3" maxlength="1000"
+                              class="form-control figma-input"
+                              placeholder="Optional greeting, scope assumptions, or timeline notes..."></textarea>
+                    <span asp-validation-for="MessageToClient" class="text-danger small"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-7">
+            <div class="hifi-card h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h6 fw-bold mb-0">Milestones &amp; pricing (WBS)</h2>
+                    <span class="text-muted tx-label-xs">Total auto-calculates from items</span>
+                </div>
+
+                <div id="milestonesContainer">
+                    @for (int i = 0; i < Model.Milestones.Count; i++)
+                    {
+                        <div class="milestone-row-item">
+                            <span class="milestone-num-badge">@(i + 1)</span>
+                            <input name="Milestones[@i].Title" value="@Model.Milestones[i].Title" class="form-control figma-input form-control-sm" placeholder="Phase" />
+                            <input name="Milestones[@i].Description" value="@Model.Milestones[i].Description" class="form-control figma-input form-control-sm" placeholder="Deliverable" />
+                            <input name="Milestones[@i].Amount"
+                                   value="@Model.Milestones[i].Amount.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)"
+                                   type="number" step="any" min="0"
+                                   class="form-control figma-input form-control-sm ms-amount-input text-end"
+                                   placeholder="0.00" />
+
+                            <button type="button" class="btn btn-sm text-muted p-0" onclick="removeMilestone(this)" title="Remove">&times;</button>
+                        </div>
+                    }
+                </div>
+
+                <button type="button" class="btn btn-figma-secondary mt-2" style="width: auto; padding: 0.45rem 0.9rem; font-size: 0.8rem;" onclick="addMilestone()">
+                    + Add milestone
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="hifi-card mb-4">
+        <h2 class="h6 fw-bold mb-3">Summary</h2>
+        <div class="d-flex justify-content-between py-2 border-bottom small">
+            <span class="text-muted">Total quote value (sum of milestones)</span>
+            <span class="fw-bold" id="summaryTotal">R 0.00</span>
+        </div>
+        <div class="d-flex justify-content-between py-2 border-bottom small">
+            <span class="text-muted">Deposit due now (<span id="summaryPct">@Model.DepositPercentage</span>%)</span>
+            <span class="fw-bold" id="summaryDeposit">R 0.00</span>
+        </div>
+        <div class="d-flex justify-content-between py-2 border-bottom small">
+            <span class="text-muted">Balance on completion</span>
+            <span class="fw-bold" id="summaryBalance">R 0.00</span>
+        </div>
+        <div class="d-flex justify-content-between py-2 border-bottom small">
+            <span class="text-muted">Client portal link</span>
+            <span class="fw-semibold text-primary" id="summarySlug">@hostUrl/p/project-auto</span>
+        </div>
+        <div class="d-flex justify-content-between pt-2 small">
+            <span class="text-muted">Payment reference</span>
+            <span class="fw-bold">@previewRef</span>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2">
+        <button type="submit" name="submitAction" value="draft" class="btn btn-figma-secondary" style="width: auto; padding: 0.62rem 1.25rem;">
+            Save draft
+        </button>
+        <button type="submit" name="submitAction" value="create" class="btn btn-figma-primary" style="width: auto; padding: 0.62rem 1.4rem;">
+            Create project &amp; generate link
+        </button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const pctInput = document.getElementById("depositPctInput");
+        const titleInput = document.getElementById("projectTitleInput");
+        const msgInput = document.getElementById("msgClientInput");
+        const hostUrl = "@hostUrl";
+
+        function formatZar(val) {
+            return "R " + val.toLocaleString("en-ZA", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function updateSummary() {
+            let total = 0;
+            document.querySelectorAll(".ms-amount-input").forEach(inp => {
+                total += parseFloat(inp.value) || 0;
+            });
+
+            const pct = Math.min(100, Math.max(0, parseInt(pctInput.value) || 0));
+            const deposit = total * (pct / 100);
+            const balance = total - deposit;
+
+            document.getElementById("summaryTotal").textContent = formatZar(total);
+            document.getElementById("summaryPct").textContent = pct;
+            document.getElementById("summaryDeposit").textContent = formatZar(deposit);
+            document.getElementById("summaryBalance").textContent = formatZar(balance);
+
+            const rawTitle = titleInput.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "project";
+            document.getElementById("summarySlug").textContent = `${hostUrl}/p/${rawTitle}-auto`;
+        }
+
+        document.getElementById("milestonesContainer").addEventListener("input", function (e) {
+            if (e.target.classList.contains("ms-amount-input")) updateSummary();
+        });
+
+        pctInput.addEventListener("input", updateSummary);
+        titleInput.addEventListener("input", updateSummary);
+        msgInput.addEventListener("input", () => {
+            document.getElementById("msgCharCount").textContent = msgInput.value.length;
+        });
+        updateSummary();
+
+        function addMilestone() {
+            const container = document.getElementById("milestonesContainer");
+            const idx = container.children.length;
+            const row = document.createElement("div");
+            row.className = "milestone-row-item";
+            row.innerHTML = `<span class="milestone-num-badge">${idx + 1}</span>
+                <input name="Milestones[${idx}].Title" class="form-control figma-input form-control-sm" placeholder="Phase" />
+                <input name="Milestones[${idx}].Description" class="form-control figma-input form-control-sm" placeholder="Deliverable" />
+                <input name="Milestones[${idx}].Amount" value="0" type="number" step="0.01" min="0" class="form-control figma-input form-control-sm ms-amount-input text-end" placeholder="0.00" />
+                <button type="button" class="btn btn-sm text-muted p-0" onclick="removeMilestone(this)" title="Remove">&times;</button>`;
+            container.appendChild(row);
+        }
+
+        function removeMilestone(btn) {
+        const container = document.getElementById("milestonesContainer");
+        if (container.children.length <= 1) return;
+        btn.parentElement.remove();
+        Array.from(container.children).forEach((row, i) => {
+        row.querySelector(".milestone-num-badge").textContent = i + 1;
+        const inputs = row.querySelectorAll("input");
+        inputs[0].name = Milestones[${i}].Title;
+        inputs[1].name = Milestones[${i}].Description;
+        inputs[2].name = Milestones[${i}].Amount;
+        });
+        updateSummary();
+        }
+
+        }  
+        </script>
+}

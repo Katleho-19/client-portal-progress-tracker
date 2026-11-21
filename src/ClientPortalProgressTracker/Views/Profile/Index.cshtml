@@ -1,0 +1,124 @@
+﻿@model ClientPortalProgressTracker.Models.ViewModels.BusinessProfileViewModel
+@{
+    ViewData["Title"] = "Business profile";
+}
+
+<h1 class="h3 fw-bold mb-1">Business profile</h1>
+<p class="text-muted small mb-3">This information appears on your client portal and quotes.</p>
+
+<div class="hifi-tabs">
+    <a asp-action="Index" class="hifi-tab active">Details</a>
+    <a asp-action="Security" class="hifi-tab">Security</a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success small py-2 mb-4">@TempData["SuccessMessage"]</div>
+}
+
+<form asp-action="Index" method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2 mb-3"></div>
+
+    <div class="row g-4">
+        <!-- Left Card: Branding & contact -->
+        <div class="col-12 col-lg-6">
+            <div class="hifi-card h-100">
+                <h2 class="h6 fw-bold mb-3">Branding &amp; contact</h2>
+
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="profile-logo-box" id="profileLogoPreview">
+                        @if (!string.IsNullOrWhiteSpace(Model.LogoUrl))
+                        {
+                            <img src="@Model.LogoUrl" alt="Business logo" />
+                        }
+                        else
+                        {
+                            <span>@(string.IsNullOrWhiteSpace(Model.BusinessName) ? "KM" : Model.BusinessName[..Math.Min(2, Model.BusinessName.Length)].ToUpper())</span>
+                        }
+                    </div>
+                    <div>
+                        <label for="logoFileInput" class="btn-table-action mb-1" style="cursor: pointer;">
+                            &#8682; Upload new logo
+                        </label>
+                        <input asp-for="LogoFile" id="logoFileInput" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg" class="d-none" />
+                        <div class="text-muted" style="font-size: 0.74rem;">PNG or JPG, max 2 MB</div>
+                        <span asp-validation-for="LogoFile" class="text-danger small d-block"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="BusinessName" class="form-label figma-label"></label>
+                    <input asp-for="BusinessName" class="form-control figma-input" placeholder="KM Web Studio" />
+                    <span asp-validation-for="BusinessName" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="FullName" class="form-label figma-label"></label>
+                    <input asp-for="FullName" class="form-control figma-input" placeholder="Katleho Makhoali" />
+                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="PhoneNumber" class="form-label figma-label"></label>
+                    <input asp-for="PhoneNumber" class="form-control figma-input" placeholder="+27 82 000 0000" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-0">
+                    <label asp-for="Email" class="form-label figma-label"></label>
+                    <input asp-for="Email" class="form-control figma-input" placeholder="hello@kmstudio.co.za" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Card: EFT banking details -->
+        <div class="col-12 col-lg-6">
+            <div class="hifi-card">
+                <h2 class="h6 fw-bold mb-3">EFT banking details</h2>
+
+                <div class="eft-info-banner">
+                    &#127974; Shown to clients who choose to pay by bank transfer.
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="BankName" class="form-label figma-label"></label>
+                    <input asp-for="BankName" class="form-control figma-input" placeholder="e.g. FNB, Capitec, Standard Bank" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="AccountNumber" class="form-label figma-label"></label>
+                    <input asp-for="AccountNumber" class="form-control figma-input" placeholder="0000 0000 000" />
+                </div>
+
+                <div class="mb-0">
+                    <label asp-for="BranchCode" class="form-label figma-label"></label>
+                    <input asp-for="BranchCode" class="form-control figma-input" placeholder="250655" />
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <a asp-action="Index" class="btn btn-figma-secondary" style="width: auto; padding: 0.62rem 1.25rem;">Cancel</a>
+                <button type="submit" class="btn btn-figma-primary" style="width: auto; padding: 0.62rem 1.4rem;">Save changes</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById("logoFileInput").addEventListener("change", function () {
+            const file = this.files && this.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const imgHtml = `<img src="${e.target.result}" alt="Business logo" />`;
+                document.getElementById("profileLogoPreview").innerHTML = imgHtml;
+                const sidebarBadge = document.querySelector(".sidebar-brand-badge");
+                if (sidebarBadge) sidebarBadge.innerHTML = imgHtml;
+            };
+            reader.readAsDataURL(file);
+        });
+    </script>
+}

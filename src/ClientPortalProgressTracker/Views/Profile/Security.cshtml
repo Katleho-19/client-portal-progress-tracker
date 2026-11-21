@@ -1,0 +1,110 @@
+﻿@model ClientPortalProgressTracker.Models.ViewModels.ChangePasswordViewModel
+@{
+    ViewData["Title"] = "Password & security";
+}
+
+<h1 class="h3 fw-bold mb-1">Business profile</h1>
+<p class="text-muted small mb-3">This information appears on your client portal and quotes.</p>
+
+<div class="hifi-tabs">
+    <a asp-action="Index" class="hifi-tab">Details</a>
+    <a asp-action="Security" class="hifi-tab active">Security</a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success small py-2 mb-4">@TempData["SuccessMessage"]</div>
+}
+
+<div class="row g-4">
+    <!-- Left Card: Change password -->
+    <div class="col-12 col-lg-6">
+        <div class="hifi-card">
+            <h2 class="h6 fw-bold mb-3">Change password</h2>
+
+            <form asp-action="Security" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2 mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="CurrentPassword" class="form-label figma-label"></label>
+                    <input asp-for="CurrentPassword" class="form-control figma-input" placeholder="••••••••" />
+                    <span asp-validation-for="CurrentPassword" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="NewPassword" class="form-label figma-label"></label>
+                    <input asp-for="NewPassword" id="secNewPassword" class="form-control figma-input" placeholder="Min. 8 characters" />
+                    <div class="strength-bars">
+                        <div class="strength-segment" id="secSeg1"></div>
+                        <div class="strength-segment" id="secSeg2"></div>
+                        <div class="strength-segment" id="secSeg3"></div>
+                        <div class="strength-segment" id="secSeg4"></div>
+                    </div>
+                    <div class="small text-muted mt-1">Password strength: <span id="secStrengthLabel" class="fw-semibold">Weak</span></div>
+                    <span asp-validation-for="NewPassword" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="ConfirmNewPassword" class="form-label figma-label"></label>
+                    <input asp-for="ConfirmNewPassword" class="form-control figma-input" placeholder="Re-enter password" />
+                    <span asp-validation-for="ConfirmNewPassword" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between">
+                    <a asp-controller="Account" asp-action="ForgotPassword" class="figma-link small">Forgot your current password?</a>
+                    <button type="submit" class="btn btn-figma-primary" style="width: auto; padding: 0.62rem 1.35rem;">Update password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Right Column: Account & Sessions -->
+    <div class="col-12 col-lg-6 d-flex flex-column gap-4">
+        <div class="hifi-card">
+            <h2 class="h6 fw-bold mb-3">Account</h2>
+            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <span class="text-muted small">Email</span>
+                <span class="fw-semibold small">@ViewBag.AccountEmail</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center pt-2">
+                <span class="text-muted small">Email status</span>
+                <span class="badge-verified">Verified</span>
+            </div>
+        </div>
+
+        <div class="hifi-card">
+            <h2 class="h6 fw-bold mb-2">Sessions</h2>
+            <p class="text-muted small mb-3">
+                You are signed in on this device. Sign out everywhere if you suspect someone else has access.
+            </p>
+            <form asp-action="LogoutAllDevices" method="post">
+                <button type="submit" class="btn btn-figma-secondary" style="width: auto; padding: 0.55rem 1.15rem;">
+                    &#128274; Log out of all devices
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById("secNewPassword").addEventListener("input", function () {
+            const val = this.value;
+            let score = 0;
+            if (val.length >= 8) score++;
+            if (/[A-Z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+
+            const colors = ["#EF4444", "#F59E0B", "#3B82F6", "#16A34A"];
+            const labels = ["Weak", "Fair", "Good", "Strong"];
+            const activeColor = score > 0 ? colors[score - 1] : "#E2E8F0";
+
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById("secSeg" + i).style.backgroundColor = i <= score ? activeColor : "#E2E8F0";
+            }
+            document.getElementById("secStrengthLabel").textContent = score > 0 ? labels[score - 1] : "Weak";
+        });
+    </script>
+}

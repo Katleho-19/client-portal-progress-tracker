@@ -12,6 +12,11 @@ public class Project : BaseModel
     [Column("portal_slug")] public string PortalSlug { get; set; } = string.Empty;
     [Column("is_link_active")] public bool IsLinkActive { get; set; } = true;
     [Column("quote_expires_at")] public DateTime? QuoteExpiresAt { get; set; }
+    [Column("message_to_client")] public string? MessageToClient { get; set; }
+    [Column("quote_sent_at")] public DateTime? QuoteSentAt { get; set; }
+    [Column("is_archived")] public bool IsArchived { get; set; } = false;
+    [Column("archived_at")] public DateTime? ArchivedAt { get; set; }
+
     [Column("client_name")] public string ClientName { get; set; } = string.Empty;
     [Column("client_email")] public string ClientEmail { get; set; } = string.Empty;
     [Column("title")] public string Title { get; set; } = string.Empty;
@@ -20,4 +25,6 @@ public class Project : BaseModel
     [Column("amount_paid")] public decimal AmountPaid { get; set; }
     [Column("status")] public string Status { get; set; } = ProjectStatus.Draft;
     [Column("created_at")] public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+
 }

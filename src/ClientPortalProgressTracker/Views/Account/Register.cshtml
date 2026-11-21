@@ -1,0 +1,108 @@
+﻿@*Programmer: Katleho Innocent Makhoali*@
+@model ClientPortalProgressTracker.Models.ViewModels.RegisterViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create your account - Client Portal &amp; Deposit Tracker</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="hifi-auth-body">
+    <div class="auth-split-wrapper">
+        <partial name="_AuthBrandPanel" />
+
+        <main class="auth-form-panel">
+            <div class="auth-form-container">
+                <h1 class="h3 fw-bold mb-1">Create your account</h1>
+                <p class="text-muted small mb-4">Start sending quotes and collecting deposits.</p>
+
+                <form asp-action="Register" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2 mb-3"></div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label asp-for="FullName" class="form-label figma-label">Full name</label>
+                            <input asp-for="FullName" class="form-control figma-input" placeholder="Katleho Makhoali" autocomplete="name" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-6">
+                            <label asp-for="BusinessName" class="form-label figma-label">Business name</label>
+                            <input asp-for="BusinessName" class="form-control figma-input" placeholder="KM Web Studio" />
+                            <span asp-validation-for="BusinessName" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label figma-label">Email</label>
+                        <input asp-for="Email" class="form-control figma-input" placeholder="you@business.co.za" autocomplete="email" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label figma-label">Password</label>
+                        <input asp-for="Password" id="regPassword" class="form-control figma-input" placeholder="Min. 8 characters" autocomplete="new-password" />
+                        <div class="strength-bars">
+                            <div class="strength-segment" id="seg1"></div>
+                            <div class="strength-segment" id="seg2"></div>
+                            <div class="strength-segment" id="seg3"></div>
+                            <div class="strength-segment" id="seg4"></div>
+                        </div>
+                        <div class="small text-muted mt-1">Password strength: <span id="strengthLabel" class="fw-semibold">Weak</span></div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ConfirmPassword" class="form-label figma-label">Confirm password</label>
+                        <input asp-for="ConfirmPassword" class="form-control figma-input" placeholder="Re-enter password" autocomplete="new-password" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input asp-for="AgreeToTerms" class="form-check-input figma-checkbox" />
+                        <label asp-for="AgreeToTerms" class="form-check-label small text-muted">
+                            I agree to the <a asp-controller="Home" asp-action="Terms" target="_blank" rel="noopener noreferrer" class="figma-link small">Terms of Service</a>
+                            and <a asp-controller="Home" asp-action="Privacy" target="_blank" rel="noopener noreferrer" class="figma-link small">Privacy Policy</a>
+                        </label>
+
+
+                        <span asp-validation-for="AgreeToTerms" class="text-danger small d-block"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-figma-primary mb-3">Create account</button>
+                </form>
+
+                <p class="text-center text-muted small mb-0">
+                    Already have an account? <a asp-action="Login" class="figma-link">Log in</a>
+                </p>
+            </div>
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById("regPassword").addEventListener("input", function () {
+            const val = this.value;
+            let score = 0;
+            if (val.length >= 8) score++;
+            if (/[A-Z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+
+            const colors = ["#EF4444", "#F59E0B", "#3B82F6", "#16A34A"];
+            const labels = ["Weak", "Fair", "Good", "Strong"];
+            const activeColor = score > 0 ? colors[score - 1] : "#E2E8F0";
+
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById("seg" + i).style.backgroundColor = i <= score ? activeColor : "#E2E8F0";
+            }
+            document.getElementById("strengthLabel").textContent = score > 0 ? labels[score - 1] : "Weak";
+        });
+    </script>
+</body>
+</html>

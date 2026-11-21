@@ -1,6 +1,43 @@
-﻿@{
-    ViewData["Title"] = "Privacy Policy";
+﻿@*Programmer: Katleho Innocent Makhoali*@
+@{
+    Layout = null;
 }
-<h1>@ViewData["Title"]</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy - Client Portal &amp; Deposit Tracker</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="app-shell-body py-5 px-3">
+    <div class="container" style="max-width: 760px;">
+        <div class="mb-3">
+            <a asp-controller="Account" asp-action="Register" class="figma-link small">&larr; Back to Register</a>
+        </div>
 
-<p>Use this page to detail your site's privacy policy.</p>
+        <div class="hifi-card p-4 p-md-5">
+            <h1 class="h3 fw-bold mb-1">Privacy Policy (POPIA)</h1>
+            <p class="text-muted small mb-4">Last updated: November 2026 &middot; Protection of Personal Information Act (POPIA)</p>
+
+            <h2 class="h6 fw-bold mt-4">1. Information We Collect</h2>
+            <ul class="small text-muted">
+                <li><strong>Freelancer Account Data:</strong> Full name, business name, email address, contact phone number, logo URL, and EFT banking details.</li>
+                <li><strong>Client &amp; Project Data:</strong> Client name, client email address, project scope, milestone progress, and payment status.</li>
+                <li><strong>Audit &amp; Payment Records:</strong> E-signature audit logs (signer name, IP address, user agent, timestamp) and uploaded Proof of Payment (POP) documents.</li>
+            </ul>
+
+            <h2 class="h6 fw-bold mt-4">2. How We Use &amp; Protect Your Data</h2>
+            <p class="small text-muted">
+                Data is used strictly to operate client portals, verify payments, and maintain legal quote audit trails. All database records are isolated per freelancer using Row-Level Security (RLS), and uploaded Proof of Payment files are stored in encrypted private storage buckets accessible only via short-lived signed URLs.
+            </p>
+
+            <h2 class="h6 fw-bold mt-4">3. Third-Party Processors</h2>
+            <p class="small text-muted mb-0">
+                We rely on Supabase for authenticated database and file storage and Paystack for PCI-DSS compliant card payment processing. We never sell or rent personal data to third parties.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

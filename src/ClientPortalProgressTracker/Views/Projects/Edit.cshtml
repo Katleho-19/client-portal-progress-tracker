@@ -1,0 +1,130 @@
+﻿@model ClientPortalProgressTracker.Models.ViewModels.EditProjectViewModel
+@{
+    ViewData["Title"] = $"Edit {Model.Title}";
+}
+
+<div class="mb-3">
+    <a asp-action="Details" asp-route-id="@Model.Id" class="figma-link small">&larr; Back to project</a>
+</div>
+
+<h1 class="h3 fw-bold mb-1">Edit quote</h1>
+<p class="text-muted small mb-4">@Model.ReferenceCode &middot; You can edit milestones and pricing until your client signs.</p>
+
+<form asp-action="Edit" method="post">
+    <input asp-for="Id" type="hidden" />
+    <input asp-for="ReferenceCode" type="hidden" />
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2 mb-3"></div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-lg-5">
+            <div class="hifi-card h-100">
+                <h2 class="h6 fw-bold mb-3">Project details</h2>
+
+                <div class="mb-3">
+                    <label asp-for="ClientName" class="form-label figma-label"></label>
+                    <input asp-for="ClientName" class="form-control figma-input" />
+                    <span asp-validation-for="ClientName" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ClientEmail" class="form-label figma-label"></label>
+                    <input asp-for="ClientEmail" class="form-control figma-input" />
+                    <span asp-validation-for="ClientEmail" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label figma-label"></label>
+                    <input asp-for="Title" class="form-control figma-input" />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-5">
+                        <label asp-for="DepositPercentage" class="form-label figma-label"></label>
+                        <input asp-for="DepositPercentage" id="editDepositPct" type="number" min="0" max="100" class="form-control figma-input" />
+                    </div>
+                    <div class="col-7">
+                        <label asp-for="QuoteExpiresAt" class="form-label figma-label"></label>
+                        <input asp-for="QuoteExpiresAt" type="date" class="form-control figma-input" />
+                    </div>
+                </div>
+
+                <div class="mb-0">
+                    <label asp-for="MessageToClient" class="form-label figma-label"></label>
+                    <textarea asp-for="MessageToClient" rows="3" maxlength="1000" class="form-control figma-input"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-7">
+            <div class="hifi-card h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h6 fw-bold mb-0">Milestones &amp; pricing (WBS)</h2>
+                    <span class="fw-bold small" id="editTotalDisplay">Total: R 0.00</span>
+                </div>
+
+                <div id="editMilestonesContainer">
+                    @for (int i = 0; i < Model.Milestones.Count; i++)
+                    {
+                        <div class="milestone-row-item">
+                            <span class="milestone-num-badge">@(i + 1)</span>
+                            <input name="Milestones[@i].Title" value="@Model.Milestones[i].Title" class="form-control figma-input form-control-sm" placeholder="Phase" />
+                            <input name="Milestones[@i].Description" value="@Model.Milestones[i].Description" class="form-control figma-input form-control-sm" placeholder="Deliverable" />
+                            <input name="Milestones[@i].Amount" value="@Model.Milestones[i].Amount" type="number" step="0.01" min="0" class="form-control figma-input form-control-sm edit-ms-amount text-end" />
+                            <button type="button" class="btn btn-sm text-muted p-0" onclick="removeEditMs(this)">&times;</button>
+                        </div>
+                    }
+                </div>
+
+                <button type="button" class="btn btn-figma-secondary mt-2" style="width: auto; padding: 0.45rem 0.9rem; font-size: 0.8rem;" onclick="addEditMs()">
+                    + Add milestone
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2">
+        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-figma-secondary" style="width: auto; padding: 0.62rem 1.25rem;">Cancel</a>
+        <button type="submit" class="btn btn-figma-primary" style="width: auto; padding: 0.62rem 1.4rem;">Save quote changes</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function recalcEditTotal() {
+            let total = 0;
+            document.querySelectorAll(".edit-ms-amount").forEach(i => total += parseFloat(i.value) || 0);
+            document.getElementById("editTotalDisplay").textContent = "Total: R " + total.toLocaleString("en-ZA", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        document.getElementById("editMilestonesContainer").addEventListener("input", recalcEditTotal);
+        recalcEditTotal();
+
+        function addEditMs() {
+            const c = document.getElementById("editMilestonesContainer");
+            const idx = c.children.length;
+            const row = document.createElement("div");
+            row.className = "milestone-row-item";
+            row.innerHTML = `<span class="milestone-num-badge">${idx + 1}</span>
+                <input name="Milestones[${idx}].Title" class="form-control figma-input form-control-sm" placeholder="Phase" />
+                <input name="Milestones[${idx}].Description" class="form-control figma-input form-control-sm" placeholder="Deliverable" />
+                <input name="Milestones[${idx}].Amount" value="0" type="number" step="0.01" min="0" class="form-control figma-input form-control-sm edit-ms-amount text-end" />
+                <button type="button" class="btn btn-sm text-muted p-0" onclick="removeEditMs(this)">&times;</button>`;
+            c.appendChild(row);
+        }
+
+        function removeEditMs(btn) {
+            const c = document.getElementById("editMilestonesContainer");
+            if (c.children.length <= 1) return;
+            btn.parentElement.remove();
+            Array.from(c.children).forEach((row, i) => {
+                row.querySelector(".milestone-num-badge").textContent = i + 1;
+                const inputs = row.querySelectorAll("input");
+                inputs[0].name = `Milestones[${i}].Title`;
+                inputs[1].name = `Milestones[${i}].Description`;
+                inputs[2].name = `Milestones[${i}].Amount`;
+            });
+            recalcEditTotal();
+        }
+    </script>
+}

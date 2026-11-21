@@ -1,0 +1,61 @@
+﻿@*Programmer: Katleho Innocent Makhoali*@
+@model ClientPortalProgressTracker.Models.ViewModels.LoginViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome back - KM Web Studio</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="hifi-auth-body">
+    <div class="auth-split-wrapper">
+        <partial name="_AuthBrandPanel" />
+
+        <main class="auth-form-panel">
+            <div class="auth-form-container">
+                <h1 class="h3 fw-bold mb-1">Welcome back</h1>
+                <p class="text-muted small mb-4">Log in to manage your projects and deposits.</p>
+
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success small py-2 mb-3">@TempData["SuccessMessage"]</div>
+                }
+
+                <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2 mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label figma-label">Email</label>
+                        <input asp-for="Email" class="form-control figma-input" placeholder="you@business.co.za" autocomplete="email" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-2">
+                        <label asp-for="Password" class="form-label figma-label">Password</label>
+                        <input asp-for="Password" class="form-control figma-input" placeholder="••••••••" autocomplete="current-password" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-end mb-4">
+                        <a asp-action="ForgotPassword" class="figma-link small">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="btn btn-figma-primary mb-4">Log in</button>
+                </form>
+
+                <p class="text-center text-muted small mb-0">
+                    New to Client Portal? <a asp-action="Register" class="figma-link">Create an account</a>
+                </p>
+            </div>
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+</body>
+</html>

@@ -1,8 +1,212 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model ClientPortalProgressTracker.Models.ViewModels.DashboardViewModel
+@using ClientPortalProgressTracker.Models.Entities
+@{
+    ViewData["Title"] = "Projects";
+    var baseUrl = $"{Context.Request.Scheme}://{Context.Request.Host}";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1">Projects</h1>
+        <p class="text-muted small mb-0">Track quotes, deposits and payments.</p>
+    </div>
+    <a asp-controller="Projects" asp-action="Create" class="btn btn-figma-primary text-decoration-none" style="width: auto; padding: 0.58rem 1.15rem;">
+        + New project
+    </a>
 </div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success small py-2 mb-3">@TempData["SuccessMessage"]</div>
+}
+
+@if (Model.PendingVerificationCount > 0 && Model.FirstPendingVerificationProject != null)
+{
+    <div class="eft-alert-banner">
+        <div>
+            <strong>&#9888; @Model.PendingVerificationCount EFT proof of payment</strong> is waiting for your verification:
+            <strong>@Model.FirstPendingVerificationProject.Title</strong> (@Model.FirstPendingVerificationProject.ReferenceCode)
+        </div>
+        <a asp-controller="Projects" asp-action="Details" asp-route-id="@Model.FirstPendingVerificationProject.Id"
+           class="btn-table-action bg-white">
+            Review
+        </a>
+    </div>
+}
+
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div>
+            <div class="kpi-label">Awaiting signature</div>
+            <div class="kpi-value">@Model.AwaitingDepositCount</div>
+            <div class="kpi-sub">R @Model.AwaitingDepositTotal.ToString("N0") quoted</div>
+        </div>
+        <div class="kpi-icon kpi-icon-amber">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div>
+            <div class="kpi-label">Active projects</div>
+            <div class="kpi-value">@Model.ActiveProjectsCount</div>
+            <div class="kpi-sub">In progress</div>
+        </div>
+        <div class="kpi-icon kpi-icon-indigo">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+            </svg>
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div>
+            <div class="kpi-label">Pending verification</div>
+            <div class="kpi-value">@Model.PendingVerificationCount</div>
+            <div class="kpi-sub">EFT proof uploaded</div>
+        </div>
+        <div class="kpi-icon kpi-icon-orange">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div>
+            <div class="kpi-label">Paid in full</div>
+            <div class="kpi-value">@Model.PaidInFullCount</div>
+            <div class="kpi-sub">R @Model.TotalReceivedAmount.ToString("N0") received</div>
+        </div>
+        <div class="kpi-icon kpi-icon-green">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        </div>
+    </div>
+</div>
+
+<div class="hifi-tabs">
+    <a asp-action="Index" asp-route-archived="false" class="hifi-tab @(!Model.ShowArchived ? "active" : "")">
+        Active (@Model.ActiveListCount)
+    </a>
+    <a asp-action="Index" asp-route-archived="true" class="hifi-tab @(Model.ShowArchived ? "active" : "")">
+        Archived (@Model.ArchivedCount)
+    </a>
+</div>
+
+<div class="projects-table-card">
+    @if (Model.Projects.Count == 0)
+    {
+        <div class="text-center py-5 px-3">
+            @if (Model.ShowArchived)
+            {
+                <p class="fw-semibold mb-1">No archived projects</p>
+                <p class="text-muted small mb-0">Completed projects that are Paid in full can be archived from their project detail page as permanent proof.</p>
+            }
+            else
+            {
+                <p class="fw-semibold mb-1">No active projects yet</p>
+                <p class="text-muted small mb-3">Create your first itemized quote to generate a shareable client portal link.</p>
+                <a asp-controller="Projects" asp-action="Create" class="btn btn-figma-primary text-decoration-none" style="width: auto; padding: 0.55rem 1.2rem;">
+                    + Create first project
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="projects-table">
+                <thead>
+                    <tr>
+                        <th>Project</th>
+                        <th>Reference</th>
+                        <th>Total</th>
+                        <th>Paid</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model.Projects)
+                    {
+                        var p = row.Project;
+                        var portalUrl = $"{baseUrl}/p/{p.PortalSlug}";
+
+                        string badgeClass = "status-draft";
+                        string badgeText = "Draft";
+
+                        if (row.HasPendingVerification)
+                        {
+                            badgeClass = "status-pending-ver";
+                            badgeText = "Pending verification";
+                        }
+                        else if (p.Status == ProjectStatus.AwaitingDeposit)
+                        {
+                            badgeClass = "status-awaiting";
+                            badgeText = "Awaiting signature";
+                        }
+                        else if (p.Status == ProjectStatus.Active || p.Status == ProjectStatus.CompletedUnpaid)
+                        {
+                            badgeClass = "status-active";
+                            badgeText = "Active";
+                        }
+                        else if (p.Status == ProjectStatus.PaidInFull)
+                        {
+                            badgeClass = "status-paid";
+                            badgeText = "Paid in full";
+                        }
+
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-dark">@p.Title</div>
+                                <div class="text-muted small">@p.ClientName</div>
+                            </td>
+                            <td class="text-muted fw-medium">@p.ReferenceCode</td>
+                            <td class="fw-semibold">R @p.TotalAmount.ToString("N0")</td>
+                            <td class="fw-semibold">R @p.AmountPaid.ToString("N0")</td>
+                            <td>
+                                <span class="status-pill @badgeClass">
+                                    <span class="status-dot"></span>@badgeText
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-inline-flex gap-2">
+                                    @if (!p.IsArchived)
+                                    {
+                                        <button type="button" class="btn-table-action" onclick="copyPortalLink('@portalUrl', this)">
+                                            Copy link
+                                        </button>
+                                    }
+                                    <a asp-controller="Projects" asp-action="Details" asp-route-id="@p.Id" class="btn-table-action">
+                                        View
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function copyPortalLink(url, btn) {
+            navigator.clipboard.writeText(url).then(() => {
+                const orig = btn.textContent;
+                btn.textContent = "Copied";
+                setTimeout(() => btn.textContent = orig, 1800);
+            });
+        }
+    </script>
+}

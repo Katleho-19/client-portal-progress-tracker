@@ -1,0 +1,46 @@
+﻿@*Programmer: Katleho Innocent Makhoali*@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Terms of Service - Client Portal &amp; Deposit Tracker</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="app-shell-body py-5 px-3">
+    <div class="container" style="max-width: 760px;">
+        <div class="mb-3">
+            <a asp-controller="Account" asp-action="Register" class="figma-link small">&larr; Back to Register</a>
+        </div>
+
+        <div class="hifi-card p-4 p-md-5">
+            <h1 class="h3 fw-bold mb-1">Terms of Service</h1>
+            <p class="text-muted small mb-4">Last updated: November 2026 &middot; Republic of South Africa</p>
+
+            <h2 class="h6 fw-bold mt-4">1. Platform Purpose</h2>
+            <p class="small text-muted">
+                Client Portal &amp; Deposit Tracker provides independent freelancers and studios with tools to issue project quotes, collect electronic quote acceptances, track project milestones, and record deposit or balance payments.
+            </p>
+
+            <h2 class="h6 fw-bold mt-4">2. Electronic Signatures (ECTA Compliance)</h2>
+            <p class="small text-muted">
+                Quote acceptances captured through a client portal link record the signer's full name, affirmative agreement, UTC timestamp, IP address, and browser user agent in accordance with Section 13 of South Africa's Electronic Communications and Transactions Act (ECTA), 25 of 2002.
+            </p>
+
+            <h2 class="h6 fw-bold mt-4">3. Payments &amp; Escrow Disclaimer</h2>
+            <p class="small text-muted">
+                Online card payments are processed directly by Paystack, and Manual EFT transfers are paid directly into the freelancer's nominated South African bank account. Client Portal &amp; Deposit Tracker does not hold, custody, or guarantee funds between freelancers and clients.
+            </p>
+
+            <h2 class="h6 fw-bold mt-4">4. Freelancer Responsibilities</h2>
+            <p class="small text-muted mb-0">
+                Freelancers are solely responsible for the accuracy of their quoted fees, banking details, tax compliance, and timely delivery of project milestones.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

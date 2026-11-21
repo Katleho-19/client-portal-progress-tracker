@@ -1,50 +1,126 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims
+@using ClientPortalProgressTracker.Models.Entities
+@using ClientPortalProgressTracker.Services
+@inject SupabaseAdmin Admin
+@{
+    var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var fullName = User.Identity?.Name ?? "Freelancer";
+    var businessName = "My Studio";
+    string? logoUrl = null;
+
+    if (Guid.TryParse(userIdStr, out var userGuid))
+    {
+        try
+        {
+            var db = await Admin.GetAsync();
+            var profile = await db.From<Freelancer>().Where(f => f.Id == userGuid).Single();
+            if (profile != null)
+            {
+                fullName = string.IsNullOrWhiteSpace(profile.FullName) ? fullName : profile.FullName;
+                businessName = string.IsNullOrWhiteSpace(profile.BusinessName) ? fullName : profile.BusinessName;
+                logoUrl = profile.LogoUrl;
+            }
+        }
+        catch { }
+    }
+
+    string GetInitials(string text, bool isBusiness = false)
+    {
+        var parts = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0) return "CP";
+        if (isBusiness && parts[0].Length is >= 2 and <= 3 && parts[0].All(char.IsUpper))
+            return parts[0];
+        if (parts.Length == 1)
+            return parts[0][..Math.Min(2, parts[0].Length)].ToUpper();
+        return $"{parts[0][0]}{parts[^1][0]}".ToUpper();
+    }
+
+    var nameParts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    var shortName = nameParts.Length > 1 ? $"{nameParts[0]} {nameParts[^1][0]}." : fullName;
+
+
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ClientPortalProgressTracker</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - @businessName</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/ClientPortalProgressTracker.styles.css" asp-append-version="true" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ClientPortalProgressTracker</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+<body class="app-shell-body">
+    <div class="app-layout">
+        <aside class="app-sidebar">
+            <div>
+                <div class="sidebar-brand">
+                    <div class="sidebar-brand-badge">
+                        @if (!string.IsNullOrWhiteSpace(logoUrl))
+                        {
+                            <img src="@logoUrl" alt="@businessName" />
+                        }
+                        else
+                        {
+                            @GetInitials(businessName)
+                        }
+                    </div>
+                    <span class="sidebar-brand-name">@businessName</span>
+                </div>
+
+                <div class="sidebar-menu-label">Menu</div>
+                <nav class="sidebar-nav">
+                    <a asp-controller="Home" asp-action="Index"
+                       class="sidebar-link @(currentController == "Home" ? "active" : "")">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                            <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                            <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                            <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a asp-controller="Profile" asp-action="Index"
+                       class="sidebar-link @(currentController == "Profile" && currentAction == "Index" ? "active" : "")">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        Profile
+                    </a>
+                    <a asp-controller="Profile" asp-action="Security"
+                       class="sidebar-link @(currentController == "Profile" && currentAction == "Security" ? "active" : "")">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        Password &amp; security
+                    </a>
+                </nav>
+
+            </div>
+
+            <div class="sidebar-user-box">
+                <div class="sidebar-avatar">@GetInitials(fullName)</div>
+                <div class="overflow-hidden">
+                    <div class="fw-semibold small text-truncate">@shortName</div>
+                    <form asp-controller="Account" asp-action="Logout" method="post" class="m-0 p-0">
+                        <button type="submit" class="btn btn-link p-0 text-decoration-none small figma-link">
+                            Log out
+                        </button>
+                    </form>
                 </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+        </aside>
+
+        <main class="app-main">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - ClientPortalProgressTracker - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

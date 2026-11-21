@@ -1,31 +1,842 @@
-html {
-  font-size: 14px;
+:root {
+    --brand-indigo: #4F46E5;
+    --brand-indigo-hover: #4338CA;
+    --brand-indigo-soft: #EEF2FF;
+    --text-main: #0F172A;
+    --text-muted: #64748B;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+body.hifi-auth-body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: #FFFFFF;
+    color: var(--text-main);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+.auth-split-wrapper {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+/* Left Gradient Hero Panel */
+.auth-brand-panel {
+    width: 38%;
+    min-width: 360px;
+    background: linear-gradient(155deg, #4338CA 0%, #3730A3 48%, #261E6D 100%);
+    color: #FFFFFF;
+    padding: 3rem 3.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
-body {
-  margin-bottom: 60px;
+.brand-top-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+.brand-km-badge {
+    width: 38px;
+    height: 38px;
+    background-color: #FFFFFF;
+    color: #4338CA;
+    font-weight: 800;
+    font-size: 0.875rem;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: -0.02em;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+.brand-studio-name {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #FFFFFF;
+}
+
+.brand-hero-copy {
+    margin: auto 0;
+    padding: 2rem 0;
+}
+
+.brand-hero-title {
+    font-size: 2.15rem;
+    font-weight: 800;
+    line-height: 1.18;
+    letter-spacing: -0.025em;
+    margin-bottom: 1rem;
+}
+
+.brand-hero-subtitle {
+    color: #C7D2FE;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    margin-bottom: 1.75rem;
+    max-width: 340px;
+}
+
+.brand-check-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+    .brand-check-list li {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        font-size: 0.9rem;
+        color: #E0E7FF;
+    }
+
+.brand-check-icon {
+    color: #A5B4FC;
+    font-weight: 700;
+}
+
+.brand-footer-copy {
+    font-size: 0.78rem;
+    color: #A5B4FC;
+}
+
+/* Right White Form Panel */
+.auth-form-panel {
+    flex: 1;
+    background-color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 2rem;
+}
+
+.auth-form-container {
+    width: 100%;
+    max-width: 410px;
+}
+
+.figma-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #1E293B;
+    margin-bottom: 0.35rem;
+}
+
+.figma-input {
+    border: 1px solid #CBD5E1;
+    border-radius: 8px;
+    padding: 0.62rem 0.85rem;
+    font-size: 0.9rem;
+    color: var(--text-main);
+}
+
+    .figma-input::placeholder {
+        color: #94A3B8;
+    }
+
+    .figma-input:focus {
+        border-color: var(--brand-indigo);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.14);
+    }
+
+.btn-figma-primary {
+    background-color: var(--brand-indigo);
+    border: none;
+    color: #FFFFFF;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.68rem 1rem;
+    border-radius: 8px;
+    width: 100%;
+    transition: background-color 0.15s ease;
+}
+
+    .btn-figma-primary:hover {
+        background-color: var(--brand-indigo-hover);
+        color: #FFFFFF;
+    }
+
+.btn-figma-secondary {
+    background-color: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    color: #334155;
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.62rem 1rem;
+    border-radius: 8px;
+    width: 100%;
+    transition: background-color 0.15s ease;
+}
+
+    .btn-figma-secondary:hover {
+        background-color: #F8FAFC;
+        color: #0F172A;
+    }
+
+.figma-link {
+    color: var(--brand-indigo);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+    .figma-link:hover {
+        text-decoration: underline;
+        color: var(--brand-indigo-hover);
+    }
+
+.strength-bars {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-top: 0.5rem;
+}
+
+.strength-segment {
+    height: 4px;
+    border-radius: 999px;
+    background-color: #E2E8F0;
+    transition: background-color 0.2s ease;
+}
+
+.inbox-icon-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: var(--brand-indigo-soft);
+    color: var(--brand-indigo);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.1rem;
+}
+
+.rule-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid #CBD5E1;
+    font-size: 10px;
+    margin-right: 8px;
+    color: transparent;
+    transition: all 0.15s ease;
+}
+
+    .rule-circle.met {
+        background-color: #16A34A;
+        border-color: #16A34A;
+        color: #FFFFFF;
+    }
+
+.status-badge-success {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #DCFCE7;
+    color: #16A34A;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.15rem;
+    margin-bottom: 1.1rem;
+}
+
+.status-badge-expired {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #FEE2E2;
+    color: #EF4444;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.15rem;
+    margin-bottom: 1.1rem;
+}
+
+@media (max-width: 900px) {
+    .auth-brand-panel {
+        display: none;
+    }
+}
+/* ==========================================================================
+   HI-FI DASHBOARD & CREATE PROJECT STYLES
+   ========================================================================== */
+.eft-alert-banner {
+    background-color: #FEFCE8;
+    border: 1px solid #FDE047;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    color: #854D0E;
+}
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 992px) {
+    .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.kpi-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 1.15rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.kpi-label {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #64748B;
+    margin-bottom: 0.35rem;
+}
+
+.kpi-value {
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: #0F172A;
+    line-height: 1.15;
+    margin-bottom: 0.25rem;
+}
+
+.kpi-sub {
+    font-size: 0.75rem;
+    color: #94A3B8;
+}
+
+.kpi-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.kpi-icon-amber {
+    background: #FEF3C7;
+    color: #D97706;
+}
+
+.kpi-icon-indigo {
+    background: #EEF2FF;
+    color: #4F46E5;
+}
+
+.kpi-icon-orange {
+    background: #FFEDD5;
+    color: #EA580C;
+}
+
+.kpi-icon-green {
+    background: #DCFCE7;
+    color: #16A34A;
+}
+
+.projects-table-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.projects-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+    .projects-table th {
+        background-color: #F8FAFC;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: #64748B;
+        padding: 0.8rem 1.15rem;
+        border-bottom: 1px solid #E2E8F0;
+    }
+
+    .projects-table td {
+        padding: 0.95rem 1.15rem;
+        border-bottom: 1px solid #F1F5F9;
+        font-size: 0.875rem;
+        vertical-align: middle;
+    }
+
+    .projects-table tr:last-child td {
+        border-bottom: none;
+    }
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.24rem 0.68rem;
+    border-radius: 999px;
+    font-size: 0.74rem;
+    font-weight: 600;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: currentColor;
+    flex-shrink: 0;
+}
+
+
+.status-draft {
+    background: #F1F5F9;
+    color: #475569;
+}
+
+.status-awaiting {
+    background: #FEF3C7;
+    color: #B45309;
+}
+
+.status-pending-ver {
+    background: #FFEDD5;
+    color: #C2410C;
+}
+
+.status-active {
+    background: #EEF2FF;
+    color: #4F46E5;
+}
+
+.status-paid {
+    background: #DCFCE7;
+    color: #15803D;
+}
+
+.btn-table-action {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    color: #334155;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.32rem 0.65rem;
+    border-radius: 6px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: all 0.15s ease;
+}
+
+    .btn-table-action:hover {
+        background: #F8FAFC;
+        border-color: #CBD5E1;
+        color: #0F172A;
+    }
+
+.milestone-row-item {
+    display: grid;
+    grid-template-columns: 26px 1fr 1.15fr 110px 24px;
+    gap: 0.45rem;
+    align-items: center;
+    margin-bottom: 0.6rem;
+}
+
+
+.milestone-num-badge {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: #F1F5F9;
+    color: #64748B;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* ==========================================================================
+   HI-FI FREELANCER APP SHELL (SIDEBAR + LAYOUT)
+   ========================================================================== */
+body.app-shell-body {
+    margin: 0;
+    background-color: #F8FAFC;
+    color: #0F172A;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.app-sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background-color: #FFFFFF;
+    border-right: 1px solid #E2E8F0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.5rem 1rem;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0 0.5rem 1.5rem;
+}
+
+.sidebar-brand-badge {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background-color: #4F46E5;
+    color: #FFFFFF;
+    font-weight: 700;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+    .sidebar-brand-badge img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+.sidebar-brand-name {
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: #0F172A;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-menu-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #94A3B8;
+    padding: 0 0.65rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.58rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #475569;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+    .sidebar-link:hover {
+        background-color: #F1F5F9;
+        color: #0F172A;
+    }
+
+    .sidebar-link.active {
+        background-color: #EEF2FF;
+        color: #4F46E5;
+        font-weight: 600;
+    }
+
+.sidebar-user-box {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.75rem 0.5rem 0;
+    border-top: 1px solid #F1F5F9;
+}
+
+.sidebar-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background-color: #EEF2FF;
+    color: #4F46E5;
+    font-weight: 700;
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.app-main {
+    flex: 1;
+    padding: 2rem 2.5rem;
+    max-width: 1180px;
+}
+
+.hifi-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.hifi-tabs {
+    display: flex;
+    gap: 1.5rem;
+    border-bottom: 1px solid #E2E8F0;
+    margin-bottom: 1.5rem;
+}
+
+.hifi-tab {
+    padding-bottom: 0.65rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #64748B;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+}
+
+    .hifi-tab.active {
+        color: #4F46E5;
+        border-bottom-color: #4F46E5;
+        font-weight: 600;
+    }
+
+.profile-logo-box {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    background-color: #4F46E5;
+    color: #FFFFFF;
+    font-weight: 700;
+    font-size: 1.15rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+    .profile-logo-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+.eft-info-banner {
+    background-color: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 0.6rem 0.85rem;
+    font-size: 0.8125rem;
+    color: #475569;
+    margin-bottom: 1.1rem;
+}
+
+.badge-verified {
+    background-color: #DCFCE7;
+    color: #16A34A;
+    font-weight: 600;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+}
+
+@media (max-width: 768px) {
+    .app-layout {
+        flex-direction: column;
+    }
+
+    .app-sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+        border-right: none;
+        border-bottom: 1px solid #E2E8F0;
+    }
+
+    .app-main {
+        padding: 1.25rem;
+    }
+}
+/* ==========================================================================
+   HI-FI PROJECT DETAILS
+   ========================================================================== */
+
+/* Portal link bar */
+.portal-link-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 0.8rem 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.portal-link-text {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #334155;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Milestones */
+.milestone-detail-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.65rem;
+    background: #FFFFFF;
+}
+
+.ms-status-circle {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #CBD5E1;
+    background: #FFFFFF;
+}
+
+    .ms-status-circle.ms-completed {
+        background: #16A34A;
+        border-color: #16A34A;
+        color: #FFFFFF;
+    }
+
+    .ms-status-circle.ms-inprogress {
+        background: #EEF2FF;
+        border-color: #4F46E5;
+    }
+
+    .ms-status-circle.ms-pending {
+        background: #FFFFFF;
+        border-color: #CBD5E1;
+    }
+
+.ms-status-select {
+    width: auto;
+    min-width: 118px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #334155;
+    border: 1px solid #CBD5E1;
+    border-radius: 8px;
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+    cursor: pointer;
+}
+
+    .ms-status-select:focus {
+        border-color: #4F46E5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.14);
+    }
+
+/* Payments */
+.payment-summary-box {
+    background: #F8FAFC;
+}
+
+.tx-label-xs {
+    font-size: 0.72rem;
+    font-weight: 500;
+}
+
+.tx-sub-text {
+    font-size: 0.75rem;
+}
+
+.text-paid-green {
+    color: #16A34A;
+}
+
+.tx-box {
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.65rem;
+    background: #FFFFFF;
+}
+
+    .tx-box.tx-pending-eft {
+        background: #FFFBEB;
+        border-color: #FCD34D;
+    }
+
+.btn-confirm-green {
+    background: #16A34A;
+    border: 1px solid #16A34A;
+    color: #FFFFFF;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.32rem 0.75rem;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: background-color 0.15s ease;
 }
